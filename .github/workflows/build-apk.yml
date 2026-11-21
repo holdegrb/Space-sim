@@ -1,0 +1,85 @@
+name: Build Android APK
+
+on:
+  push:
+  workflow_dispatch:
+
+permissions:
+  # Publishing the GitHub Release below.
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Matches the Flutter version this project was created with.
+          flutter-version: '3.41.6'
+          channel: stable
+          cache: true
+
+      - run: flutter pub get
+      - run: flutter analyze
+      - run: flutter test
+
+      # Decodes the release keystore from repo secrets so every build carries the same
+      # signature (Android refuses an update signed with a different key). Without the
+      # secrets the build still succeeds, signed with this runner's throwaway debug key.
+      # See README.md.
+      - name: Set up release signing
+        env:
+          ANDROID_KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -z "$ANDROID_KEYSTORE_BASE64" ] || [ -z "$ANDROID_KEYSTORE_PASSWORD" ] \
+            || [ -z "$ANDROID_KEY_ALIAS" ] || [ -z "$ANDROID_KEY_PASSWORD" ]; then
+            echo "::warning title=Unsigned release::Signing secrets missing; this APK uses a one-off debug key and will not install over a previous build. See README.md."
+            exit 0
+          fi
+          keystore="$RUNNER_TEMP/release.jks"
+          echo "$ANDROID_KEYSTORE_BASE64" | base64 --decode > "$keystore"
+          {
+            echo "ANDROID_KEYSTORE_PATH=$keystore"
+            echo "ANDROID_KEYSTORE_PASSWORD=$ANDROID_KEYSTORE_PASSWORD"
+            echo "ANDROID_KEY_ALIAS=$ANDROID_KEY_ALIAS"
+            echo "ANDROID_KEY_PASSWORD=$ANDROID_KEY_PASSWORD"
+          } >> "$GITHUB_ENV"
+          echo "Release signing configured."
+
+      # The run number is the versionCode, so each build installs as an update of the last.
+      - run: flutter build apk --release --build-number=${{ github.run_number }}
+
+      - name: Remove keystore
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: space-sim-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
+
+      # A plain APK on a GitHub Release: one tap to install on the phone, and a feed
+      # Obtainium can track. Non-master builds are pre-releases; only master is "latest".
+      - run: cp build/app/outputs/flutter-apk/app-release.apk SpaceSim.apk
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          target_commitish: ${{ github.sha }}
+          name: Build ${{ github.run_number }} (${{ github.ref_name }})
+          body: |
+            Automated build of `${{ github.ref_name }}` at ${{ github.sha }}.
+            Install `SpaceSim.apk` on the phone.
+          files: SpaceSim.apk
+          prerelease: ${{ github.ref_name != 'master' }}
+          make_latest: ${{ github.ref_name == 'master' && 'true' || 'false' }}
