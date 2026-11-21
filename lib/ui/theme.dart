@@ -13,6 +13,7 @@ abstract final class SpaceColors {
   static const enemy = Color(0xFFFF5A5A);
   static const boss = Color(0xFFFF9F1C);
   static const credits = Color(0xFFFFD166);
+  static const prestige = Color(0xFFB98CFF); // Dark Matter
 }
 
 ThemeData buildTheme() {
