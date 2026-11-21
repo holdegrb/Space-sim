@@ -15,6 +15,12 @@ dart run tool/balance_sim.dart   # simulated players over 5 days; rerun after an
 ```
 Code is `dart format` clean. CI and signing: see README.md (same scheme as the Booty Bay app).
 
+## Workflow
+
+- **Always track changes with a pull request.** Every change goes on a branch and gets a PR
+  against the default branch (`master`), even small ones. Never push straight to `master`. Push
+  follow-ups to the same branch while its PR is open; after it merges, start a new branch and PR.
+
 ## Layout
 
 | File | Role |
