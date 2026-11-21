@@ -18,9 +18,9 @@ class FakeAlerts implements BreakdownAlerts {
 }
 
 void main() {
-  for (final (name, size) in [
-    ('phone', const Size(400, 860)),
-    ('fold inner', const Size(770, 580)),
+  for (final (name, size, sheet) in [
+    ('phone', const Size(400, 860), true),
+    ('fold inner', const Size(770, 580), false),
   ]) {
     testWidgets('home screen renders on $name', (tester) async {
       SharedPreferences.setMockInitialValues({});
@@ -31,6 +31,15 @@ void main() {
       c.state.credits = 50;
       await tester.pumpWidget(SpaceSimApp(controller: c));
       expect(find.text('Sol Fringe I'), findsOneWidget);
+      if (sheet) {
+        // Phones: the battle fills the screen; upgrades slide up from a button
+        // whose badge counts what's affordable with 50 credits (cannons,
+        // hull, targeting, shields, engines).
+        expect(find.text('UPGRADES'), findsNothing);
+        expect(find.text('5'), findsOneWidget);
+        await tester.tap(find.text('Upgrades'));
+        await tester.pumpAndSettle();
+      }
       expect(find.text('UPGRADES'), findsOneWidget);
       expect(tester.takeException(), isNull);
       await tester.tap(
@@ -106,11 +115,22 @@ void main() {
     SharedPreferences.setMockInitialValues({
       'save': '{"v":2,"sector":30,"credits":500}',
     });
-    tester.view.physicalSize = const Size(400, 2400);
+    tester.view.physicalSize = const Size(400, 860);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
     final c = await GameController.load();
     await tester.pumpWidget(SpaceSimApp(controller: c));
+    await tester.tap(find.text('Upgrades'));
+    await tester.pumpAndSettle();
+    await tester.scrollUntilVisible(
+      find.text('Jump for +4 Dark Matter'),
+      200,
+      scrollable: find.descendant(
+        of: find.byType(ListView),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Jump for +4 Dark Matter'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Jump'));

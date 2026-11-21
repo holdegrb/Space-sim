@@ -89,21 +89,21 @@ class _HomeScreenState extends State<HomeScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, box) {
-            final wide = box.maxWidth >= 600;
-            const battle = _BattlePanel();
-            const shop = _UpgradeList();
-            if (wide) {
+            // Wide screens (the Fold's inner display) have room for both side by
+            // side. Phones give the battle the whole screen, with the upgrades in a
+            // sheet that slides up from the button at the bottom.
+            if (box.maxWidth >= 600) {
               return const Row(
                 children: [
-                  Expanded(flex: 3, child: battle),
-                  Expanded(flex: 2, child: shop),
+                  Expanded(flex: 3, child: _BattlePanel()),
+                  Expanded(flex: 2, child: _UpgradeList()),
                 ],
               );
             }
             return const Column(
               children: [
-                Expanded(flex: 5, child: battle),
-                Expanded(flex: 4, child: shop),
+                Expanded(child: _BattlePanel()),
+                _UpgradesButton(),
               ],
             );
           },
@@ -370,20 +370,97 @@ class _StatBar extends StatelessWidget {
   }
 }
 
+/// The phone layout's way into the upgrades: a full-width button at the bottom
+/// (thumb reach) that slides the upgrade sheet up. The badge counts upgrades
+/// affordable right now.
+class _UpgradesButton extends StatelessWidget {
+  const _UpgradesButton();
+
+  @override
+  Widget build(BuildContext context) {
+    final s = GameScope.of(context).state;
+    final affordable = Upgrade.values.where(s.canBuy).length;
+    final jump = s.prestigeReward > 0;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      child: SizedBox(
+        height: 56,
+        width: double.infinity,
+        child: FilledButton(
+          onPressed: () => showUpgradeSheet(context),
+          style: FilledButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.keyboard_arrow_up),
+              const SizedBox(width: 8),
+              const Text('Upgrades', style: TextStyle(fontSize: 16)),
+              if (affordable > 0) ...[
+                const SizedBox(width: 10),
+                Badge(
+                  label: Text('$affordable'),
+                  backgroundColor: SpaceColors.credits,
+                  textColor: Colors.black,
+                ),
+              ],
+              if (jump) ...[
+                const SizedBox(width: 8),
+                const Icon(Icons.auto_awesome, size: 18),
+              ],
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Slides the upgrade list up over the battle. It rebuilds live (credits keep
+/// coming in while it's open) because [GameScope] sits above the navigator.
+Future<void> showUpgradeSheet(BuildContext context) {
+  return showModalBottomSheet<void>(
+    context: context,
+    isScrollControlled: true,
+    useSafeArea: true,
+    showDragHandle: true,
+    backgroundColor: SpaceColors.panel,
+    // Light scrim: the battle stays visible behind the sheet.
+    barrierColor: Colors.black26,
+    builder: (_) => DraggableScrollableSheet(
+      expand: false,
+      initialChildSize: 0.5,
+      minChildSize: 0.3,
+      maxChildSize: 0.92,
+      builder: (_, scroll) => _UpgradeList(scrollController: scroll),
+    ),
+  );
+}
+
 class _UpgradeList extends StatelessWidget {
-  const _UpgradeList();
+  const _UpgradeList({this.scrollController});
+
+  /// Set inside the bottom sheet, which draws its own background.
+  final ScrollController? scrollController;
 
   @override
   Widget build(BuildContext context) {
     final c = GameScope.of(context);
+    final inSheet = scrollController != null;
     return Container(
-      margin: const EdgeInsets.fromLTRB(8, 0, 8, 8),
-      decoration: BoxDecoration(
-        color: SpaceColors.panel,
-        borderRadius: BorderRadius.circular(16),
-      ),
+      margin: inSheet ? null : const EdgeInsets.fromLTRB(8, 0, 8, 8),
+      decoration: inSheet
+          ? null
+          : BoxDecoration(
+              color: SpaceColors.panel,
+              borderRadius: BorderRadius.circular(16),
+            ),
       child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 8),
+        controller: scrollController,
+        padding: EdgeInsets.fromLTRB(0, inSheet ? 0 : 8, 0, 8),
         children: [
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
