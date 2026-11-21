@@ -77,6 +77,7 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    // Noon + 4h = 4pm: outside quiet hours, so exactly at the breakdown.
     expect(alerts.scheduled, [now.add(left)]);
 
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
@@ -86,17 +87,19 @@ void main() {
     c.dispose();
   });
 
-  testWidgets('a broken-down ship shows the repair overlay', (tester) async {
+  testWidgets('maintenance due shows the service overlay', (tester) async {
     SharedPreferences.setMockInitialValues({
       'save': '{"v":2,"sector":3,"integrity":0}',
     });
     final c = await GameController.load();
     await tester.pumpWidget(SpaceSimApp(controller: c));
-    expect(find.text('Ship broken down'), findsOneWidget);
-    await tester.tap(find.text('Repair ship'));
+    expect(find.text('Maintenance due'), findsOneWidget);
+    await tester.tap(find.text('Service ship (+25% tune-up)'));
     await tester.pump();
     expect(c.state.disabled, isFalse);
-    expect(find.text('Ship broken down'), findsNothing);
+    expect(c.state.tunedUp, isTrue);
+    expect(find.text('Maintenance due'), findsNothing);
+    expect(find.textContaining('Tune-up!'), findsOneWidget);
   });
 
   testWidgets('galaxy jump asks first, then resets the run', (tester) async {
@@ -114,5 +117,20 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.state.darkMatter, 4);
     expect(c.state.sector, 1);
+  });
+
+  testWidgets('no alert is scheduled when the player turned alerts off', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({'alerts_enabled': false});
+    final alerts = FakeAlerts();
+    final c = await GameController.load(alerts: alerts);
+    await tester.pumpWidget(SpaceSimApp(controller: c));
+    c.start();
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.hidden);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
+    expect(alerts.scheduled, isEmpty);
+    c.dispose();
   });
 }

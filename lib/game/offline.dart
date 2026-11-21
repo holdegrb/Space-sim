@@ -3,7 +3,7 @@ import 'dart:math';
 import 'game_state.dart';
 
 /// Offline progress stops accruing after this long away.
-const offlineCap = Duration(hours: 8);
+const offlineCap = Duration(hours: 12);
 
 /// Shorter absences aren't worth a "while you were away" report.
 const offlineReportThreshold = Duration(minutes: 1);

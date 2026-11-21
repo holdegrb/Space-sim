@@ -118,11 +118,11 @@ void main() {
   group('integrity (must come back to repair)', () {
     test('drains over the endurance, then the ship breaks down and stops', () {
       final s = GameState();
-      expect(s.stats.endurance, const Duration(hours: 2));
-      s.tick(3600, maxStep: 0.25);
+      expect(s.stats.endurance, const Duration(hours: 4));
+      s.tick(2 * 3600, maxStep: 0.25);
       expect(s.integrity, closeTo(0.5, 0.001));
-      expect(s.timeToBreakdown.inMinutes, closeTo(60, 1));
-      s.tick(3600 + 1, maxStep: 0.25);
+      expect(s.timeToBreakdown.inMinutes, closeTo(120, 1));
+      s.tick(2 * 3600 + 1, maxStep: 0.25);
       expect(s.disabled, isTrue);
       expect(s.timeToBreakdown, Duration.zero);
       final kills = s.totalKills;
@@ -146,13 +146,45 @@ void main() {
       final s = GameState(credits: 1e9);
       s.buy(Upgrade.drones);
       s.buy(Upgrade.drones);
-      expect(s.stats.endurance, const Duration(hours: 3));
+      expect(s.stats.endurance, const Duration(hours: 5, minutes: 20));
+      final maxed = GameState(
+        levels: {Upgrade.drones: Upgrade.drones.maxLevel!},
+      );
+      expect(maxed.stats.endurance, offlineCap);
+    });
+
+    test('servicing at half or below earns a tune-up; topping up does not', () {
+      final s = GameState(integrity: 0.9);
+      expect(s.repair(), isFalse);
+      expect(s.tunedUp, isFalse);
+      final low = GameState(integrity: 0.5);
+      expect(low.repair(), isTrue);
+      expect(low.tuneUpSeconds, tuneUpDuration.inSeconds);
+      // A second tap straight after earns nothing more.
+      expect(low.repair(), isFalse);
+      final down = GameState(integrity: 0);
+      expect(down.repair(), isTrue);
+      expect(down.disabled, isFalse);
+    });
+
+    test('a tune-up boosts damage and credits, then wears off', () {
+      final plain = GameState()..tick(120);
+      final boosted = GameState(tuneUpSeconds: 900)..tick(120);
+      expect(boosted.credits, greaterThan(plain.credits * 1.2));
+      expect(boosted.tuneUpSeconds, closeTo(780, 0.01));
+      boosted.tick(800);
+      expect(boosted.tunedUp, isFalse);
+    });
+
+    test('a tune-up does not tick down while maintenance is due', () {
+      final s = GameState(integrity: 0, tuneUpSeconds: 100)..tick(60);
+      expect(s.tuneUpSeconds, 100);
     });
 
     test('offline report says when the ship broke down', () {
       final s = GameState();
-      final r = simulateOffline(s, const Duration(hours: 5));
-      expect(r.brokeDownAfter, const Duration(hours: 2));
+      final r = simulateOffline(s, const Duration(hours: 7));
+      expect(r.brokeDownAfter, const Duration(hours: 4));
       expect(r.idle, const Duration(hours: 3));
       expect(s.disabled, isTrue);
 
@@ -162,7 +194,7 @@ void main() {
     });
 
     test('no breakdown within endurance', () {
-      final r = simulateOffline(GameState(), const Duration(minutes: 90));
+      final r = simulateOffline(GameState(), const Duration(hours: 3));
       expect(r.brokeDownAfter, isNull);
     });
   });
@@ -228,6 +260,7 @@ void main() {
         darkMatter: 12,
         prestiges: 2,
         integrity: 0.25,
+        tuneUpSeconds: 42,
       );
       final r = GameState.fromJson(s.toJson());
       expect(r.credits, 1234.5);
@@ -243,6 +276,7 @@ void main() {
       expect(r.darkMatter, 12);
       expect(r.prestiges, 2);
       expect(r.integrity, 0.25);
+      expect(r.tuneUpSeconds, 42);
       expect(r.stats.damage, s.stats.damage);
     });
 

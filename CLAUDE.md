@@ -29,8 +29,8 @@ Code is `dart format` clean. CI and signing: see README.md (same scheme as the B
 | `lib/game/upgrades.dart` | `Upgrade` (costs) and `ShipStats.fromLevels` (effects) |
 | `lib/game/sectors.dart` | Enemy scaling per sector, sector/region names, discoveries |
 | `lib/game/prestige.dart` | Galaxy jump: Dark Matter payout and bonus |
-| `lib/services/breakdown_alerts.dart` | Local notification when the ship breaks down (interface + plugin impl) |
-| `lib/game/offline.dart` | Offline progress = the real simulation, capped at 8h |
+| `lib/services/breakdown_alerts.dart` | "Maintenance due" notification (interface + plugin impl) and quiet hours |
+| `lib/game/offline.dart` | Offline progress = the real simulation, capped at 12h |
 | `lib/game/format.dart` | 1.23K / 4.5M number and duration formatting |
 | `lib/game_controller.dart` | Real-time loop (33ms), lifecycle, save/load (`shared_preferences`) |
 | `lib/ui/` | `home_screen.dart` (panels, dialogs), `battle_view.dart` (CustomPainter), `theme.dart` |
@@ -47,19 +47,32 @@ Code is `dart format` clean. CI and signing: see README.md (same scheme as the B
   moves them, rerun `tool/balance_sim.dart` and update the bands deliberately.
 - Boss block: losing to a boss sets `bossBlocked` (farm instead of dying in a loop while idle).
   Buying anything or "Challenge boss" clears it. Losing to regulars retreats a sector.
-- **Integrity / breakdown (the "come back" mechanic):** `integrity` drains linearly from 1 to 0
-  over `ShipStats.endurance` (2h, +30 min per Repair drones level, max 8h = the offline cap) while
+- **Integrity / maintenance (the "come back" mechanic):** `integrity` drains linearly from 1 to 0
+  over `ShipStats.endurance` (4h, +40 min per Repair drones level, max 12h = the offline cap) while
   the ship operates, in every phase except `disabled`. At 0 the ship is `Phase.disabled`: no
   fighting, no credits, no progress, online or offline, until `repair()` (free; the cost is coming
-  back). Keep the drain purely time-based: that makes the breakdown instant exactly
-  `now + timeToBreakdown`, which the controller schedules as a notification when the app is
-  backgrounded and cancels on return. Defeats don't cost integrity for the same reason.
+  back). The owner asked for a full stop; research suggested a soft slowdown instead (not adopted;
+  ask the owner before changing it). Keep the drain purely time-based: that makes the breakdown
+  instant exactly `now + timeToBreakdown`, which the controller schedules as a notification when
+  the app is backgrounded and cancels on return. Defeats don't cost integrity for the same reason.
+  - Player-facing wording is **"Maintenance due" / "Service"**, never "broken down" / "repair":
+    research found punishment framing reads worse than "come collect" framing. Code names
+    (`repair`, `disabled`, `integrity`) are unchanged.
+  - **Tune-up:** servicing at integrity ≤ `tuneUpThreshold` (0.5) grants `tuneUpBonus` (×1.25
+    damage and credits) for `tuneUpDuration` (15 min) of operation; it doesn't tick while
+    disabled and is saved (`tuneUp`). The threshold stops tap-spamming Service for a permanent
+    boost; keep the bonus small so it stays a bonus, not the baseline.
+  - The 4h base covers an evening and max drones cover a night's sleep. Started at 2h, which the
+    research put at the very bottom of comparable games' windows (AFK Arena 12h).
+  - Alert: one per absence, at `alertTimeFor` (breakdowns 23:00–08:00 local wait until 08:00).
+    Players can turn alerts and quiet hours off from the ⋮ menu (`alerts_enabled`,
+    `alerts_quiet_hours` in prefs, both default on).
 - **Prestige (galaxy jump):** from sector 25, `prestige()` pays `darkMatterFor(bestSector)`
   (quadratic) and resets sector, credits, all upgrade levels (drones too) and integrity. Each Dark
   Matter adds +10% (additive) to damage, hull, shields and credits via `ShipStats.fromLevels`.
   The payout was exponential once and ran away (sector 270, 700M DM by day 5); keep it
   polynomial and check `tool/balance_sim.dart` (it simulates players checking in every 2/4/8h
-  who repair, buy and jump) after touching it. `bestSector` is per run, `bestEver` all-time.
+  and at 8am/1pm/9pm, who service, buy and jump) after touching it. `bestSector` is per run, `bestEver` all-time.
 - Saves are versioned (now `'v': 2`; v1 loads as no Dark Matter, full integrity) and `fromJson` tolerates missing/garbage fields. Only progress
   is saved; the fight in progress restarts with a warp. Bump `v` and migrate if the meaning of a
   field changes.
