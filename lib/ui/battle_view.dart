@@ -77,8 +77,9 @@ class _BattlePainter extends CustomPainter {
       }
     }
 
-    _ship(canvas, player, scale, s.phase == Phase.repairing);
-    if (s.stats.maxShield > 0 && s.shield > 0 && s.phase != Phase.repairing) {
+    final down = s.phase == Phase.repairing || s.phase == Phase.disabled;
+    _ship(canvas, player, scale, down);
+    if (s.stats.maxShield > 0 && s.shield > 0 && !down) {
       final a = (s.shield / s.stats.maxShield).clamp(0.0, 1.0);
       canvas.drawCircle(
         player,
@@ -109,15 +110,14 @@ class _BattlePainter extends CustomPainter {
     final label = switch (s.phase) {
       Phase.warping => 'WARPING',
       Phase.repairing => 'REPAIRING',
+      Phase.disabled => 'BROKEN DOWN',
       Phase.fighting => e!.name.toUpperCase(),
     };
     final tp = TextPainter(
       text: TextSpan(
         text: label,
         style: TextStyle(
-          color: s.phase == Phase.repairing
-              ? SpaceColors.enemy
-              : SpaceColors.muted,
+          color: down ? SpaceColors.enemy : SpaceColors.muted,
           fontSize: 12 * scale.clamp(1.0, 1.5),
           letterSpacing: 2,
           fontWeight: FontWeight.w600,

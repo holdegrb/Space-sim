@@ -2,13 +2,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:space_sim/game/format.dart';
 import 'package:space_sim/game/game_state.dart';
 import 'package:space_sim/game/offline.dart';
+import 'package:space_sim/game/prestige.dart';
 import 'package:space_sim/game/sectors.dart';
 import 'package:space_sim/game/upgrades.dart';
 
 /// Plays like an attentive player: ticks in 5s chunks, buying the cheapest
 /// upgrade whenever it can.
-GameState greedyPlay(Duration d) {
-  final s = GameState();
+GameState greedyPlay(Duration d, {int darkMatter = 0}) {
+  final s = GameState(darkMatter: darkMatter);
   for (var t = 0; t < d.inSeconds; t += 5) {
     s.tick(5, maxStep: 0.25);
     while (true) {
@@ -114,6 +115,105 @@ void main() {
     });
   });
 
+  group('integrity (must come back to repair)', () {
+    test('drains over the endurance, then the ship breaks down and stops', () {
+      final s = GameState();
+      expect(s.stats.endurance, const Duration(hours: 2));
+      s.tick(3600, maxStep: 0.25);
+      expect(s.integrity, closeTo(0.5, 0.001));
+      expect(s.timeToBreakdown.inMinutes, closeTo(60, 1));
+      s.tick(3600 + 1, maxStep: 0.25);
+      expect(s.disabled, isTrue);
+      expect(s.timeToBreakdown, Duration.zero);
+      final kills = s.totalKills;
+      final credits = s.credits;
+      s.tick(3600, maxStep: 0.25);
+      expect(s.totalKills, kills);
+      expect(s.credits, credits);
+    });
+
+    test('repair restores integrity and restarts a broken-down ship', () {
+      final s = GameState(integrity: 0);
+      expect(s.disabled, isTrue);
+      s.repair();
+      expect(s.disabled, isFalse);
+      expect(s.integrity, 1);
+      s.tick(30);
+      expect(s.totalKills, greaterThan(0));
+    });
+
+    test('repair drones extend endurance', () {
+      final s = GameState(credits: 1e9);
+      s.buy(Upgrade.drones);
+      s.buy(Upgrade.drones);
+      expect(s.stats.endurance, const Duration(hours: 3));
+    });
+
+    test('offline report says when the ship broke down', () {
+      final s = GameState();
+      final r = simulateOffline(s, const Duration(hours: 5));
+      expect(r.brokeDownAfter, const Duration(hours: 2));
+      expect(r.idle, const Duration(hours: 3));
+      expect(s.disabled, isTrue);
+
+      final again = simulateOffline(s, const Duration(hours: 1));
+      expect(again.brokeDownAfter, Duration.zero);
+      expect(again.kills, 0);
+    });
+
+    test('no breakdown within endurance', () {
+      final r = simulateOffline(GameState(), const Duration(minutes: 90));
+      expect(r.brokeDownAfter, isNull);
+    });
+  });
+
+  group('prestige', () {
+    test('pays nothing before the minimum sector', () {
+      final s = GameState(sector: 24, credits: 50);
+      expect(s.prestigeReward, 0);
+      expect(s.prestige(), 0);
+      expect(s.sector, 24);
+      expect(s.credits, 50);
+    });
+
+    test('payout grows with depth', () {
+      expect(darkMatterFor(prestigeMinSector), 1);
+      expect(darkMatterFor(40), 16);
+      expect(darkMatterFor(70), 100);
+    });
+
+    test('resets the run, keeps Dark Matter, and boosts stats', () {
+      final s = GameState(
+        sector: 40,
+        credits: 1e6,
+        levels: {Upgrade.cannons: 30, Upgrade.drones: 4},
+        integrity: 0.3,
+        totalKills: 500,
+      );
+      final base = GameState().stats;
+      expect(s.prestige(), 16);
+      expect(s.darkMatter, 16);
+      expect(s.prestiges, 1);
+      expect(s.sector, 1);
+      expect(s.bestSector, 1);
+      expect(s.bestEver, 40);
+      expect(s.credits, 0);
+      expect(s.levels.values.every((l) => l == 0), isTrue);
+      expect(s.integrity, 1);
+      expect(s.totalKills, 500);
+      expect(s.stats.damage, closeTo(base.damage * 2.6, 1e-9));
+      expect(s.stats.maxHull, closeTo(base.maxHull * 2.6, 1e-9));
+      expect(s.stats.creditMultiplier, closeTo(2.6, 1e-9));
+      expect(s.hull, s.stats.maxHull);
+    });
+
+    test('a boosted second run outpaces the first', () {
+      final first = greedyPlay(const Duration(minutes: 30));
+      final boosted = greedyPlay(const Duration(minutes: 30), darkMatter: 20);
+      expect(boosted.bestSector, greaterThan(first.bestSector + 5));
+    });
+  });
+
   group('save', () {
     test('round-trips progress', () {
       final s = GameState(
@@ -124,6 +224,10 @@ void main() {
         bossBlocked: true,
         bestSector: 9,
         totalKills: 88,
+        bestEver: 30,
+        darkMatter: 12,
+        prestiges: 2,
+        integrity: 0.25,
       );
       final r = GameState.fromJson(s.toJson());
       expect(r.credits, 1234.5);
@@ -135,6 +239,23 @@ void main() {
       expect(r.bossBlocked, isTrue);
       expect(r.bestSector, 9);
       expect(r.totalKills, 88);
+      expect(r.bestEver, 30);
+      expect(r.darkMatter, 12);
+      expect(r.prestiges, 2);
+      expect(r.integrity, 0.25);
+      expect(r.stats.damage, s.stats.damage);
+    });
+
+    test('a broken-down ship stays broken down after a reload', () {
+      final r = GameState.fromJson(GameState(integrity: 0).toJson());
+      expect(r.disabled, isTrue);
+    });
+
+    test('v1 saves load with a fresh ship and no Dark Matter', () {
+      final r = GameState.fromJson({'v': 1, 'credits': 10, 'sector': 5});
+      expect(r.integrity, 1);
+      expect(r.darkMatter, 0);
+      expect(r.bestEver, 5);
     });
 
     test('tolerates garbage', () {

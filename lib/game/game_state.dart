@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'prestige.dart';
 import 'sectors.dart';
 import 'upgrades.dart';
 
@@ -10,6 +11,9 @@ enum Phase {
 
   /// Hull was destroyed; limping home and patching up.
   repairing,
+
+  /// Integrity ran out. Nothing happens until the player comes back and [GameState.repair]s.
+  disabled,
 }
 
 /// Seconds the ship spends repairing after its hull hits zero.
@@ -28,12 +32,26 @@ class GameState {
     this.kills = 0,
     this.bossBlocked = false,
     int? bestSector,
+    int? bestEver,
     this.totalKills = 0,
+    this.darkMatter = 0,
+    this.prestiges = 0,
+    double integrity = 1,
   }) : levels = {for (final u in Upgrade.values) u: levels?[u] ?? 0},
-       bestSector = bestSector ?? sector {
-    _stats = ShipStats.fromLevels(this.levels);
+       bestSector = bestSector ?? sector,
+       bestEver = max(bestEver ?? 1, bestSector ?? sector),
+       integrity = integrity.clamp(0.0, 1.0) {
+    _restartShip();
+    if (this.integrity <= 0) phase = Phase.disabled;
+  }
+
+  /// Fresh stats, full hull and shields, warping to the next contact.
+  void _restartShip() {
+    _stats = ShipStats.fromLevels(levels, darkMatter: darkMatter.toDouble());
     hull = _stats.maxHull;
     shield = _stats.maxShield;
+    enemy = null;
+    phase = Phase.warping;
     phaseTimer = _stats.warpDelay;
   }
 
@@ -50,8 +68,20 @@ class GameState {
   /// challenging the boss, so it doesn't die over and over while idle. Cleared by
   /// [challengeBoss] or by buying any upgrade.
   bool bossBlocked;
+
+  /// Furthest sector this run (prestige resets it); [bestEver] across all runs.
   int bestSector;
+  int bestEver;
   int totalKills;
+
+  /// Permanent prestige currency; see `prestige.dart`.
+  int darkMatter;
+  int prestiges;
+
+  /// Wear, 1 (fresh) to 0 (broken down). Drains linearly over
+  /// [ShipStats.endurance] while the ship is operating, so the breakdown time is
+  /// exactly predictable (the controller schedules a notification for it).
+  double integrity;
 
   late ShipStats _stats;
   ShipStats get stats => _stats;
@@ -74,6 +104,15 @@ class GameState {
 
   bool get bossReady => kills >= killsPerSector;
 
+  bool get disabled => phase == Phase.disabled;
+
+  /// Operating time left before a breakdown.
+  Duration get timeToBreakdown =>
+      disabled ? Duration.zero : _stats.endurance * integrity;
+
+  /// Dark Matter a jump would pay right now.
+  int get prestigeReward => darkMatterFor(bestSector);
+
   /// Advances the simulation by [dt] seconds in steps of at most [maxStep].
   void tick(double dt, {double maxStep = 0.1}) {
     while (dt > 0) {
@@ -85,6 +124,12 @@ class GameState {
 
   void _step(double dt) {
     clock += dt;
+    if (phase == Phase.disabled) return;
+    integrity -= dt / (_stats.endurance.inMicroseconds / 1e6);
+    if (integrity <= 0) {
+      _breakDown();
+      return;
+    }
     if (phase != Phase.repairing) {
       shield = min(_stats.maxShield, shield + _stats.shieldRegen * dt);
     }
@@ -103,7 +148,43 @@ class GameState {
           phase = Phase.warping;
           phaseTimer = _stats.warpDelay;
         }
+      case Phase.disabled:
+        break;
     }
+  }
+
+  void _breakDown() {
+    integrity = 0;
+    enemy = null;
+    phase = Phase.disabled;
+  }
+
+  /// The player is back: full integrity, and a broken-down ship gets going again.
+  void repair() {
+    integrity = 1;
+    if (phase == Phase.disabled) _restartShip();
+  }
+
+  /// Jumps to a new galaxy: pays [prestigeReward] Dark Matter and starts a new run
+  /// (sector 1, no credits, no upgrades). Returns the Dark Matter gained, 0 if the
+  /// run isn't deep enough (nothing changes then).
+  int prestige() {
+    final gain = prestigeReward;
+    if (gain <= 0) return 0;
+    darkMatter += gain;
+    prestiges++;
+    credits = 0;
+    for (final u in Upgrade.values) {
+      levels[u] = 0;
+    }
+    sector = 1;
+    kills = 0;
+    bossBlocked = false;
+    bestSector = 1;
+    integrity = 1;
+    lastDiscovery = null;
+    _restartShip();
+    return gain;
   }
 
   void _spawn() {
@@ -153,6 +234,7 @@ class GameState {
       lastDiscovery = found;
       sector++;
       bestSector = max(bestSector, sector);
+      bestEver = max(bestEver, sector);
       kills = 0;
       // Patched up at the sector's waypoint.
       hull = _stats.maxHull;
@@ -196,9 +278,9 @@ class GameState {
     credits -= costOf(u);
     levels[u] = levels[u]! + 1;
     final old = _stats;
-    _stats = ShipStats.fromLevels(levels);
+    _stats = ShipStats.fromLevels(levels, darkMatter: darkMatter.toDouble());
     // New plating and shield capacity arrive intact.
-    if (phase != Phase.repairing) {
+    if (phase != Phase.repairing && phase != Phase.disabled) {
       hull += _stats.maxHull - old.maxHull;
       shield += _stats.maxShield - old.maxShield;
     }
@@ -207,7 +289,7 @@ class GameState {
   }
 
   Map<String, Object?> toJson() => {
-    'v': 1,
+    'v': 2,
     'credits': credits,
     'levels': {for (final e in levels.entries) e.key.name: e.value},
     'sector': sector,
@@ -215,9 +297,14 @@ class GameState {
     'bossBlocked': bossBlocked,
     'bestSector': bestSector,
     'totalKills': totalKills,
+    'bestEver': bestEver,
+    'darkMatter': darkMatter,
+    'prestiges': prestiges,
+    'integrity': integrity,
   };
 
-  /// Restores progress; the fight in progress restarts with a fresh warp.
+  /// Restores progress; the fight in progress restarts with a fresh warp (or stays
+  /// broken down). v1 saves (no prestige, no integrity) load as a fresh ship.
   factory GameState.fromJson(Map<String, Object?> json) {
     final raw = json['levels'];
     final levels = <Upgrade, int>{};
@@ -236,6 +323,10 @@ class GameState {
       bossBlocked: json['bossBlocked'] == true,
       bestSector: max(sector, (json['bestSector'] as num?)?.toInt() ?? sector),
       totalKills: (json['totalKills'] as num?)?.toInt() ?? 0,
+      bestEver: (json['bestEver'] as num?)?.toInt(),
+      darkMatter: max(0, (json['darkMatter'] as num?)?.toInt() ?? 0),
+      prestiges: max(0, (json['prestiges'] as num?)?.toInt() ?? 0),
+      integrity: (json['integrity'] as num?)?.toDouble() ?? 1,
     );
   }
 }

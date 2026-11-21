@@ -3,9 +3,11 @@ import 'package:flutter/material.dart';
 import '../game/format.dart';
 import '../game/game_state.dart';
 import '../game/offline.dart';
+import '../game/prestige.dart';
 import '../game/sectors.dart';
 import '../game/upgrades.dart';
 import '../game_controller.dart';
+import '../services/breakdown_alerts.dart';
 import 'battle_view.dart';
 import 'theme.dart';
 
@@ -19,6 +21,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   GameController? _controller;
   bool _dialogOpen = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // The breakdown alert is the whole point of coming back; ask once the UI is up.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final alerts = _controller?.alerts;
+      if (alerts is LocalBreakdownAlerts) alerts.requestPermission();
+    });
+  }
 
   @override
   void didChangeDependencies() {
@@ -122,7 +134,8 @@ class _BattlePanel extends StatelessWidget {
                   children: [
                     Text(sectorName(s.sector), style: text.titleLarge),
                     Text(
-                      'Sector ${s.sector}  ·  furthest ${s.bestSector}',
+                      'Sector ${s.sector}  ·  furthest ${s.bestSector}'
+                      '${s.darkMatter > 0 ? '  ·  ${s.darkMatter} DM' : ''}',
                       style: text.bodySmall?.copyWith(color: SpaceColors.muted),
                     ),
                   ],
@@ -143,7 +156,15 @@ class _BattlePanel extends StatelessWidget {
           const SizedBox(height: 8),
           _SectorProgress(state: s),
           const SizedBox(height: 8),
-          Expanded(child: BattleView(state: s)),
+          Expanded(
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                BattleView(state: s),
+                if (s.disabled) _BrokenDown(onRepair: c.repair),
+              ],
+            ),
+          ),
           const SizedBox(height: 8),
           _StatBar(
             label: 'Hull',
@@ -160,6 +181,8 @@ class _BattlePanel extends StatelessWidget {
               color: SpaceColors.shield,
             ),
           ],
+          const SizedBox(height: 4),
+          _IntegrityBar(state: s, onRepair: c.repair),
         ],
       ),
     );
@@ -342,6 +365,7 @@ class _UpgradeList extends StatelessWidget {
           ),
           for (final u in Upgrade.values)
             _UpgradeTile(upgrade: u, controller: c),
+          _PrestigeTile(controller: c),
         ],
       ),
     );
@@ -397,6 +421,7 @@ String statText(Upgrade u, ShipStats st) => switch (u) {
   Upgrade.shields => st.maxShield == 0 ? 'none' : formatNumber(st.maxShield),
   Upgrade.engines => '${st.warpDelay.toStringAsFixed(2)}s',
   Upgrade.salvage => '×${st.creditMultiplier.toStringAsFixed(2)}',
+  Upgrade.drones => formatDuration(st.endurance),
 };
 
 class _OfflineDialog extends StatelessWidget {
@@ -413,8 +438,16 @@ class _OfflineDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Your ship kept fighting for ${formatDuration(r.simulated)}.'),
-          if (r.capped)
+          if (r.brokeDownAfter == Duration.zero)
+            const Text('Your ship was broken down the whole time.')
+          else if (r.brokeDownAfter != null)
+            Text(
+              'Your ship fought for ${formatDuration(r.brokeDownAfter!)}, then broke '
+              'down and drifted for ${formatDuration(r.idle)}.',
+            )
+          else
+            Text('Your ship kept fighting for ${formatDuration(r.simulated)}.'),
+          if (r.capped && r.brokeDownAfter == null)
             Text(
               '(Away ${formatDuration(r.away)}; offline progress is capped at '
               '${formatDuration(offlineCap)}.)',
@@ -427,6 +460,13 @@ class _OfflineDialog extends StatelessWidget {
             'Credits earned: ${formatNumber(r.credits)}',
             style: const TextStyle(color: SpaceColors.credits),
           ),
+          if (r.brokeDownAfter != null) ...[
+            const SizedBox(height: 12),
+            Text(
+              'Repair it to start exploring again. Repair drones keep it going longer.',
+              style: Theme.of(context).textTheme.bodySmall,
+            ),
+          ],
         ],
       ),
       actions: [
@@ -436,5 +476,205 @@ class _OfflineDialog extends StatelessWidget {
         ),
       ],
     );
+  }
+}
+
+/// Over the battle view while the ship is broken down: nothing happens until this
+/// is tapped.
+class _BrokenDown extends StatelessWidget {
+  const _BrokenDown({required this.onRepair});
+
+  final VoidCallback onRepair;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Center(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.build_circle, size: 40, color: SpaceColors.boss),
+              const SizedBox(height: 8),
+              Text(
+                'Ship broken down',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Exploration has stopped.',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: SpaceColors.muted),
+              ),
+              const SizedBox(height: 12),
+              FilledButton.icon(
+                onPressed: onRepair,
+                icon: const Icon(Icons.build),
+                label: const Text('Repair ship'),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Wear meter: how long until the ship breaks down, with a free top-up button
+/// (the cost is coming back).
+class _IntegrityBar extends StatelessWidget {
+  const _IntegrityBar({required this.state, required this.onRepair});
+
+  final GameState state;
+  final VoidCallback onRepair;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = state;
+    final small = Theme.of(context).textTheme.bodySmall;
+    final color = s.integrity > 0.5
+        ? SpaceColors.accent
+        : (s.integrity > 0.2 ? SpaceColors.boss : SpaceColors.enemy);
+    return Row(
+      children: [
+        SizedBox(width: 52, child: Text('Wear', style: small)),
+        Expanded(
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(4),
+            child: LinearProgressIndicator(
+              value: s.integrity,
+              minHeight: 8,
+              backgroundColor: SpaceColors.panelHigh,
+              color: color,
+            ),
+          ),
+        ),
+        SizedBox(
+          width: 60,
+          child: Text(
+            s.disabled ? 'down' : formatDuration(s.timeToBreakdown),
+            textAlign: TextAlign.right,
+            style: small,
+          ),
+        ),
+        const SizedBox(width: 4),
+        TextButton(
+          onPressed: s.integrity < 0.995 ? onRepair : null,
+          style: TextButton.styleFrom(
+            minimumSize: const Size(0, 32),
+            padding: const EdgeInsets.symmetric(horizontal: 8),
+          ),
+          child: const Text('Repair'),
+        ),
+      ],
+    );
+  }
+}
+
+/// "Jump to a new galaxy": shows the Dark Matter bonus and what a jump pays.
+class _PrestigeTile extends StatelessWidget {
+  const _PrestigeTile({required this.controller});
+
+  final GameController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = controller.state;
+    final reward = s.prestigeReward;
+    final bonus = darkMatterBonus(s.darkMatter.toDouble());
+    final small = Theme.of(context).textTheme.bodySmall;
+    return Container(
+      margin: const EdgeInsets.fromLTRB(12, 8, 12, 4),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: SpaceColors.panelHigh,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SpaceColors.prestige.withValues(alpha: 0.6)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.auto_awesome,
+                color: SpaceColors.prestige,
+                size: 18,
+              ),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  'Galaxy jump',
+                  overflow: TextOverflow.ellipsis,
+                  style: Theme.of(context).textTheme.titleSmall,
+                ),
+              ),
+              Text(
+                '${s.darkMatter} Dark Matter',
+                style: small?.copyWith(color: SpaceColors.prestige),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Start over in a new galaxy (sector 1, no credits or upgrades) for Dark '
+            'Matter. Each one adds ${(darkMatterPerUnit * 100).round()}% damage, hull, '
+            'shields and credits, forever. Now: ×${bonus.toStringAsFixed(1)}.',
+            style: small?.copyWith(color: SpaceColors.muted),
+          ),
+          const SizedBox(height: 8),
+          if (reward > 0) ...[
+            FilledButton.icon(
+              style: FilledButton.styleFrom(
+                backgroundColor: SpaceColors.prestige,
+              ),
+              onPressed: () => _confirm(context, reward),
+              icon: const Icon(Icons.rocket_launch, size: 18),
+              label: Text('Jump for +$reward Dark Matter'),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Deeper runs pay much more: sector ${s.bestSector + 5} would pay '
+              '${darkMatterFor(s.bestSector + 5)}.',
+              style: small?.copyWith(color: SpaceColors.muted),
+            ),
+          ] else
+            Text(
+              'Reach sector $prestigeMinSector to jump (furthest this run: '
+              '${s.bestSector}).',
+              style: small,
+            ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirm(BuildContext context, int reward) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Jump to a new galaxy?'),
+        content: Text(
+          'You gain $reward Dark Matter and lose this run\'s sectors, credits and '
+          'upgrades.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Jump'),
+          ),
+        ],
+      ),
+    );
+    if (ok == true) controller.prestige();
   }
 }
