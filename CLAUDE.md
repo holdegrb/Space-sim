@@ -35,6 +35,12 @@ Code is `dart format` clean. CI and signing: see README.md (same scheme as the B
 | `lib/game_controller.dart` | Real-time loop (33ms), lifecycle, save/load (`shared_preferences`) |
 | `lib/ui/` | `home_screen.dart` (panels, dialogs), `battle_view.dart` (CustomPainter), `theme.dart` |
 
+**Layout:** on phones (< 600 dp wide) the battle fills the screen and the upgrades live in a
+bottom sheet (`showUpgradeSheet`, opens at half height) behind a full-width **Upgrades** button
+whose badge counts affordable upgrades. The fight is drawn in the upper part of the battle view
+so it stays visible above the open sheet. Wide screens (Fold inner) keep battle | upgrades side
+by side.
+
 ## Rules
 
 - **`lib/game/` is pure Dart and deterministic**: no `Random` without a fixed seed, no

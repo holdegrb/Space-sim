@@ -46,9 +46,11 @@ class _BattlePainter extends CustomPainter {
     final warping = s.phase == Phase.warping;
     _drawStars(canvas, size, warping);
 
-    final scale = min(size.width / 360, size.height / 200).clamp(0.6, 2.0);
-    final player = Offset(size.width * 0.22, size.height * 0.55);
-    final foe = Offset(size.width * 0.74, size.height * 0.5);
+    // Sized mostly by width: the phone layout gives the battle a tall view.
+    final scale = min(size.width / 280, size.height / 220).clamp(0.6, 2.2);
+    // Upper half, so the fight stays visible above the half-height upgrade sheet.
+    final player = Offset(size.width * 0.22, size.height * 0.36);
+    final foe = Offset(size.width * 0.74, size.height * 0.33);
     final e = s.enemy;
 
     // Lasers fade over 150ms after each shot.
