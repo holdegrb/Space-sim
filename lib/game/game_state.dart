@@ -19,6 +19,16 @@ enum Phase {
 /// Seconds the ship spends repairing after its hull hits zero.
 const repairSeconds = 6.0;
 
+/// Servicing a ship at or below this integrity earns a tune-up: the reward for
+/// coming back. Above it (a top-up a few minutes after the last one) there's none, so
+/// tapping Service repeatedly can't keep the boost running.
+const tuneUpThreshold = 0.5;
+
+/// A tune-up multiplies damage and credits by this for [tuneUpDuration] of operation.
+/// Kept small so it stays a bonus rather than the expected baseline.
+const tuneUpBonus = 1.25;
+const tuneUpDuration = Duration(minutes: 15);
+
 /// The whole game: progress, wallet, upgrades and the fight in progress.
 ///
 /// Pure Dart and deterministic (no RNG, no wall clock): the same [tick]s from the
@@ -37,6 +47,7 @@ class GameState {
     this.darkMatter = 0,
     this.prestiges = 0,
     double integrity = 1,
+    this.tuneUpSeconds = 0,
   }) : levels = {for (final u in Upgrade.values) u: levels?[u] ?? 0},
        bestSector = bestSector ?? sector,
        bestEver = max(bestEver ?? 1, bestSector ?? sector),
@@ -83,6 +94,9 @@ class GameState {
   /// exactly predictable (the controller schedules a notification for it).
   double integrity;
 
+  /// Operating seconds left on the current tune-up (see [tuneUpBonus]).
+  double tuneUpSeconds;
+
   late ShipStats _stats;
   ShipStats get stats => _stats;
 
@@ -106,6 +120,14 @@ class GameState {
 
   bool get disabled => phase == Phase.disabled;
 
+  bool get tunedUp => tuneUpSeconds > 0;
+
+  /// Applies to damage and credits; 1 outside a tune-up.
+  double get _boost => tunedUp ? tuneUpBonus : 1;
+
+  /// Whether servicing now would earn a tune-up.
+  bool get tuneUpAvailable => integrity <= tuneUpThreshold;
+
   /// Operating time left before a breakdown.
   Duration get timeToBreakdown =>
       disabled ? Duration.zero : _stats.endurance * integrity;
@@ -125,6 +147,7 @@ class GameState {
   void _step(double dt) {
     clock += dt;
     if (phase == Phase.disabled) return;
+    tuneUpSeconds = max(0, tuneUpSeconds - dt);
     integrity -= dt / (_stats.endurance.inMicroseconds / 1e6);
     if (integrity <= 0) {
       _breakDown();
@@ -159,10 +182,15 @@ class GameState {
     phase = Phase.disabled;
   }
 
-  /// The player is back: full integrity, and a broken-down ship gets going again.
-  void repair() {
+  /// The player is back: full integrity, and a ship holding position gets going
+  /// again. Returns whether it earned a tune-up (integrity was at or below
+  /// [tuneUpThreshold]).
+  bool repair() {
+    final earned = tuneUpAvailable;
+    if (earned) tuneUpSeconds = tuneUpDuration.inSeconds.toDouble();
     integrity = 1;
     if (phase == Phase.disabled) _restartShip();
+    return earned;
   }
 
   /// Jumps to a new galaxy: pays [prestigeReward] Dark Matter and starts a new run
@@ -199,7 +227,7 @@ class GameState {
     final e = enemy!;
     playerCooldown -= dt;
     while (playerCooldown <= 0) {
-      e.hp -= _stats.damage;
+      e.hp -= _stats.damage * _boost;
       lastPlayerShot = clock;
       playerCooldown += 1 / _stats.fireRate;
       if (e.destroyed) {
@@ -226,7 +254,7 @@ class GameState {
   }
 
   void _onKill(Enemy e) {
-    credits += e.reward * _stats.creditMultiplier;
+    credits += e.reward * _stats.creditMultiplier * _boost;
     totalKills++;
     if (e.isBoss) {
       final found = Discovery.forSector(sector);
@@ -301,6 +329,7 @@ class GameState {
     'darkMatter': darkMatter,
     'prestiges': prestiges,
     'integrity': integrity,
+    'tuneUp': tuneUpSeconds,
   };
 
   /// Restores progress; the fight in progress restarts with a fresh warp (or stays
@@ -327,6 +356,13 @@ class GameState {
       darkMatter: max(0, (json['darkMatter'] as num?)?.toInt() ?? 0),
       prestiges: max(0, (json['prestiges'] as num?)?.toInt() ?? 0),
       integrity: (json['integrity'] as num?)?.toDouble() ?? 1,
+      tuneUpSeconds: max(
+        0,
+        min(
+          tuneUpDuration.inSeconds.toDouble(),
+          (json['tuneUp'] as num?)?.toDouble() ?? 0,
+        ),
+      ),
     );
   }
 }

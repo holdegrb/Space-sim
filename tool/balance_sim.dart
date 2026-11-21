@@ -1,8 +1,8 @@
 // ignore_for_file: avoid_print
 // Not a test: `dart run tool/balance_sim.dart` prints how a player progresses.
 //
-// The player checks in every 5 minutes for the first hour, then every [gap] hours.
-// Each check-in repairs the ship, buys the cheapest upgrades it can afford, and jumps
+// The player checks in every 5 minutes for the first hour, then on a schedule.
+// Each check-in services the ship (earning a tune-up when due), buys the cheapest upgrades it can afford, and jumps
 // galaxies once a jump would at least double their Dark Matter (and pays >= 1).
 import 'package:space_sim/game/format.dart';
 import 'package:space_sim/game/game_state.dart';
@@ -11,16 +11,22 @@ import 'package:space_sim/game/upgrades.dart';
 void main() {
   for (final gap in [2, 4, 8]) {
     print('--- checks in every ${gap}h after the first hour ---');
-    run(gap);
+    run((t) => gap * 3600);
   }
+  // A casual day: 8am, 1pm and 9pm (starting at 8am), so overnight is an 11h gap.
+  print('--- checks in at 8am, 1pm and 9pm ---');
+  const day = [5, 8, 11]; // hours to the next check-in from 8am / 1pm / 9pm
+  var i = 0;
+  run((t) => day[i++ % 3] * 3600);
 }
 
-void run(int gapHours) {
+void run(int Function(int t) nextGap) {
   final s = GameState();
   var t = 0;
   var nextReport = 3600;
+  var tuneUps = 0;
   while (t < 5 * 24 * 3600) {
-    final step = t < 3600 ? 300 : gapHours * 3600;
+    final step = t < 3600 ? 300 : nextGap(t);
     // Tick in 5s chunks so an early-game player also buys during play.
     for (var i = 0; i < step; i += 5) {
       s.tick(5, maxStep: 0.25);
@@ -28,7 +34,7 @@ void run(int gapHours) {
     }
     t += step;
     final brokeDown = s.disabled;
-    s.repair();
+    if (s.repair()) tuneUps++;
     final reward = s.prestigeReward;
     if (reward > 0 && reward >= s.darkMatter) {
       print(
@@ -43,7 +49,7 @@ void run(int gapHours) {
         '  ${formatDuration(Duration(seconds: t)).padRight(8)} '
         'sector ${s.sector.toString().padLeft(3)} best ${s.bestSector.toString().padLeft(3)} '
         'DM ${s.darkMatter.toString().padLeft(4)} jumps ${s.prestiges} '
-        'endurance ${formatDuration(s.stats.endurance)}'
+        'endurance ${formatDuration(s.stats.endurance)} tune-ups $tuneUps'
         '${brokeDown ? '  (was broken down)' : ''}',
       );
       nextReport = t + 12 * 3600;

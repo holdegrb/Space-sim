@@ -3,7 +3,26 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tz_data;
 import 'package:timezone/timezone.dart' as tz;
 
-/// Tells the player their ship has broken down, so they come back to repair it.
+/// Quiet hours, local time: an alert due between [quietStartHour]:00 and
+/// [quietEndHour]:00 waits until [quietEndHour]:00.
+const quietStartHour = 23;
+const quietEndHour = 8;
+
+/// When to tell the player about a breakdown at [breakdown] (local time): then, or
+/// the end of quiet hours if it falls inside them.
+DateTime alertTimeFor(DateTime breakdown, {bool quietHours = true}) {
+  final t = breakdown.toLocal();
+  if (!quietHours) return t;
+  if (t.hour >= quietStartHour) {
+    return DateTime(t.year, t.month, t.day + 1, quietEndHour);
+  }
+  if (t.hour < quietEndHour) {
+    return DateTime(t.year, t.month, t.day, quietEndHour);
+  }
+  return t;
+}
+
+/// Tells the player their ship's maintenance is due, so they come back to service it.
 /// An interface so tests (and the controller's default) can do without the plugin.
 abstract interface class BreakdownAlerts {
   /// Replaces any pending alert with one at [at].
@@ -30,7 +49,7 @@ class LocalBreakdownAlerts implements BreakdownAlerts {
     android: AndroidNotificationDetails(
       'ship_status',
       'Ship status',
-      channelDescription: 'When your ship breaks down and needs repairs',
+      channelDescription: 'When your ship needs maintenance',
       importance: Importance.high,
       priority: Priority.high,
       icon: 'ic_stat_ship',
@@ -72,8 +91,10 @@ class LocalBreakdownAlerts implements BreakdownAlerts {
       if (!at.isAfter(DateTime.now())) return;
       await _plugin.zonedSchedule(
         id: _id,
-        title: 'Your ship has broken down',
-        body: 'It stopped exploring. Come back and repair it to keep fighting.',
+        title: 'Maintenance due',
+        body:
+            'Your ship is holding position. Service it to keep exploring and '
+            'get a tune-up boost.',
         // An absolute instant, so UTC is exact whatever the device's zone.
         scheduledDate: tz.TZDateTime.from(at, tz.UTC),
         notificationDetails: _details,

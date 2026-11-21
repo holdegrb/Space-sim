@@ -11,7 +11,7 @@ enum Upgrade {
   shields('Shield generator', 'Shield capacity (regenerates)', 30, 1.24),
   engines('Warp engines', 'Faster warp to the next contact', 40, 1.45),
   salvage('Salvage bay', 'Credits from every kill', 60, 1.35),
-  drones('Repair drones', 'Time out before the ship needs repairs', 100, 1.6);
+  drones('Repair drones', 'Time out before maintenance is due', 100, 1.6);
 
   const Upgrade(this.label, this.description, this.baseCost, this.costGrowth);
 
@@ -63,7 +63,8 @@ class ShipStats {
       shieldRegen: shield * 0.2,
       warpDelay: max(0.3, 2.0 - 0.085 * l(Upgrade.engines)),
       creditMultiplier: (1.0 + 0.15 * l(Upgrade.salvage)) * dm,
-      endurance: Duration(minutes: 120 + 30 * l(Upgrade.drones)),
+      // 4h covers an evening; max level (12h) covers a night's sleep.
+      endurance: Duration(minutes: 240 + 40 * l(Upgrade.drones)),
     );
   }
 
@@ -77,8 +78,8 @@ class ShipStats {
   final double warpDelay;
   final double creditMultiplier;
 
-  /// How long the ship can operate from full integrity before it breaks down
-  /// and waits for the player to come back and repair it.
+  /// How long the ship can operate from full integrity before maintenance is due
+  /// and it holds position until the player comes back to service it.
   final Duration endurance;
 
   double get dps => damage * fireRate;

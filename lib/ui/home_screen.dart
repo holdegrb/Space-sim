@@ -145,10 +145,32 @@ class _BattlePanel extends StatelessWidget {
               PopupMenuButton<String>(
                 icon: const Icon(Icons.more_vert),
                 onSelected: (v) {
-                  if (v == 'reset') _confirmReset(context, c);
+                  switch (v) {
+                    case 'alerts':
+                      c.alertsEnabled = !c.alertsEnabled;
+                    case 'quiet':
+                      c.quietHours = !c.quietHours;
+                    case 'reset':
+                      _confirmReset(context, c);
+                  }
                 },
-                itemBuilder: (_) => const [
-                  PopupMenuItem(value: 'reset', child: Text('Reset progress')),
+                itemBuilder: (_) => [
+                  CheckedPopupMenuItem(
+                    value: 'alerts',
+                    checked: c.alertsEnabled,
+                    child: const Text('Maintenance alerts'),
+                  ),
+                  CheckedPopupMenuItem(
+                    value: 'quiet',
+                    checked: c.quietHours,
+                    enabled: c.alertsEnabled,
+                    child: const Text('Quiet hours (11pm–8am)'),
+                  ),
+                  const PopupMenuDivider(),
+                  const PopupMenuItem(
+                    value: 'reset',
+                    child: Text('Reset progress'),
+                  ),
                 ],
               ),
             ],
@@ -161,7 +183,17 @@ class _BattlePanel extends StatelessWidget {
               fit: StackFit.expand,
               children: [
                 BattleView(state: s),
-                if (s.disabled) _BrokenDown(onRepair: c.repair),
+                if (s.tunedUp)
+                  Positioned(
+                    left: 10,
+                    top: 10,
+                    child: _TuneUpChip(seconds: s.tuneUpSeconds),
+                  ),
+                if (s.disabled)
+                  _MaintenanceDue(
+                    tuneUp: s.tuneUpAvailable,
+                    onService: () => service(context, c),
+                  ),
               ],
             ),
           ),
@@ -182,7 +214,7 @@ class _BattlePanel extends StatelessWidget {
             ),
           ],
           const SizedBox(height: 4),
-          _IntegrityBar(state: s, onRepair: c.repair),
+          _IntegrityBar(state: s, onService: () => service(context, c)),
         ],
       ),
     );
@@ -439,11 +471,14 @@ class _OfflineDialog extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (r.brokeDownAfter == Duration.zero)
-            const Text('Your ship was broken down the whole time.')
+            const Text(
+              'Your ship held position the whole time, waiting for service.',
+            )
           else if (r.brokeDownAfter != null)
             Text(
-              'Your ship fought for ${formatDuration(r.brokeDownAfter!)}, then broke '
-              'down and drifted for ${formatDuration(r.idle)}.',
+              'Your ship fought for ${formatDuration(r.brokeDownAfter!)}, then '
+              'maintenance came due and it held position for '
+              '${formatDuration(r.idle)}.',
             )
           else
             Text('Your ship kept fighting for ${formatDuration(r.simulated)}.'),
@@ -463,7 +498,8 @@ class _OfflineDialog extends StatelessWidget {
           if (r.brokeDownAfter != null) ...[
             const SizedBox(height: 12),
             Text(
-              'Repair it to start exploring again. Repair drones keep it going longer.',
+              'Service it to start exploring again and get a tune-up. Repair drones '
+              'keep it going longer.',
               style: Theme.of(context).textTheme.bodySmall,
             ),
           ],
@@ -479,12 +515,29 @@ class _OfflineDialog extends StatelessWidget {
   }
 }
 
-/// Over the battle view while the ship is broken down: nothing happens until this
-/// is tapped.
-class _BrokenDown extends StatelessWidget {
-  const _BrokenDown({required this.onRepair});
+/// Services the ship and, if that earned a tune-up, says so.
+void service(BuildContext context, GameController c) {
+  if (!c.repair()) return;
+  ScaffoldMessenger.of(context)
+    ..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(
+          'Tune-up! +${((tuneUpBonus - 1) * 100).round()}% damage and credits '
+          'for ${formatDuration(tuneUpDuration)}.',
+        ),
+      ),
+    );
+}
 
-  final VoidCallback onRepair;
+/// Over the battle view while maintenance is due: nothing happens until the ship is
+/// serviced.
+class _MaintenanceDue extends StatelessWidget {
+  const _MaintenanceDue({required this.tuneUp, required this.onService});
+
+  final bool tuneUp;
+  final VoidCallback onService;
 
   @override
   Widget build(BuildContext context) {
@@ -502,20 +555,24 @@ class _BrokenDown extends StatelessWidget {
               const Icon(Icons.build_circle, size: 40, color: SpaceColors.boss),
               const SizedBox(height: 8),
               Text(
-                'Ship broken down',
+                'Maintenance due',
                 style: Theme.of(context).textTheme.titleMedium,
               ),
               const SizedBox(height: 4),
               const Text(
-                'Exploration has stopped.',
+                'Your ship is holding position until it\'s serviced.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: SpaceColors.muted),
               ),
               const SizedBox(height: 12),
               FilledButton.icon(
-                onPressed: onRepair,
+                onPressed: onService,
                 icon: const Icon(Icons.build),
-                label: const Text('Repair ship'),
+                label: Text(
+                  tuneUp
+                      ? 'Service ship (+${((tuneUpBonus - 1) * 100).round()}% tune-up)'
+                      : 'Service ship',
+                ),
               ),
             ],
           ),
@@ -525,13 +582,48 @@ class _BrokenDown extends StatelessWidget {
   }
 }
 
-/// Wear meter: how long until the ship breaks down, with a free top-up button
-/// (the cost is coming back).
+/// Shown on the battle view while a tune-up is running.
+class _TuneUpChip extends StatelessWidget {
+  const _TuneUpChip({required this.seconds});
+
+  final double seconds;
+
+  @override
+  Widget build(BuildContext context) {
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: SpaceColors.credits.withValues(alpha: 0.18),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: SpaceColors.credits.withValues(alpha: 0.6)),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.bolt, size: 14, color: SpaceColors.credits),
+            const SizedBox(width: 2),
+            Text(
+              'Tune-up +${((tuneUpBonus - 1) * 100).round()}% · '
+              '${formatDuration(Duration(seconds: seconds.ceil()))}',
+              style: Theme.of(
+                context,
+              ).textTheme.labelSmall?.copyWith(color: SpaceColors.credits),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Time until maintenance is due, with a free Service button (the cost is coming
+/// back). Servicing at half or below also earns a tune-up.
 class _IntegrityBar extends StatelessWidget {
-  const _IntegrityBar({required this.state, required this.onRepair});
+  const _IntegrityBar({required this.state, required this.onService});
 
   final GameState state;
-  final VoidCallback onRepair;
+  final VoidCallback onService;
 
   @override
   Widget build(BuildContext context) {
@@ -542,7 +634,7 @@ class _IntegrityBar extends StatelessWidget {
         : (s.integrity > 0.2 ? SpaceColors.boss : SpaceColors.enemy);
     return Row(
       children: [
-        SizedBox(width: 52, child: Text('Wear', style: small)),
+        SizedBox(width: 52, child: Text('Service', style: small)),
         Expanded(
           child: ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -557,19 +649,19 @@ class _IntegrityBar extends StatelessWidget {
         SizedBox(
           width: 60,
           child: Text(
-            s.disabled ? 'down' : formatDuration(s.timeToBreakdown),
+            s.disabled ? 'due' : formatDuration(s.timeToBreakdown),
             textAlign: TextAlign.right,
             style: small,
           ),
         ),
         const SizedBox(width: 4),
         TextButton(
-          onPressed: s.integrity < 0.995 ? onRepair : null,
+          onPressed: s.integrity < 0.995 ? onService : null,
           style: TextButton.styleFrom(
             minimumSize: const Size(0, 32),
             padding: const EdgeInsets.symmetric(horizontal: 8),
           ),
-          child: const Text('Repair'),
+          child: Text(s.tuneUpAvailable ? 'Service ⚡' : 'Service'),
         ),
       ],
     );

@@ -9,10 +9,11 @@ fighting while you're away, but not forever: see wear below.
 
 - **Upgrades:** cannons (damage), targeting (fire rate), hull plating, shield generator
   (regenerating), warp engines (less downtime between fights), salvage bay (more credits).
-- **Wear:** the ship wears down while it's out (2 hours from a fresh repair, up to 8 with
-  Repair drones). When it's worn out the ship breaks down and stops completely, so nothing more
-  is earned until you come back and tap **Repair**. Repairs are free, and you get a
-  notification when it breaks down.
+- **Maintenance:** the ship runs for 4 hours after a service (up to 12 with Repair drones).
+  Then maintenance is due and it holds position, earning nothing, until you come back and tap
+  **Service**. Servicing is free, and if the ship was at half or below you get a 15-minute
+  **tune-up** (+25% damage and credits). A notification tells you when maintenance is due; it
+  waits until 8am if that falls overnight, and both can be turned off from the ⋮ menu.
 - **Galaxy jump (prestige):** from sector 25 you can start over in a new galaxy for Dark Matter.
   Each point is a permanent +10% to damage, hull, shields and credits. Deeper runs pay more.
 - **Losing** is never a game over. Lose to a boss and the ship repairs and farms the sector until

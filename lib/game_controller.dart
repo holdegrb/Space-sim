@@ -12,6 +12,8 @@ import 'services/breakdown_alerts.dart';
 
 const _saveKey = 'save';
 const _lastSeenKey = 'last_seen_ms';
+const _alertsKey = 'alerts_enabled';
+const _quietHoursKey = 'alerts_quiet_hours';
 
 /// Owns the [GameState], runs it in real time while the app is in the foreground,
 /// saves it, and applies offline progress when the player comes back.
@@ -50,6 +52,21 @@ class GameController extends ChangeNotifier with WidgetsBindingObserver {
   final SharedPreferences _prefs;
   final DateTime Function() _now;
   final BreakdownAlerts alerts;
+
+  /// Player settings for the maintenance alert; both default on.
+  bool get alertsEnabled => _prefs.getBool(_alertsKey) ?? true;
+  bool get quietHours => _prefs.getBool(_quietHoursKey) ?? true;
+
+  set alertsEnabled(bool v) {
+    _prefs.setBool(_alertsKey, v);
+    notifyListeners();
+  }
+
+  set quietHours(bool v) {
+    _prefs.setBool(_quietHoursKey, v);
+    notifyListeners();
+  }
+
   GameState state;
 
   /// Shown once by the UI, then cleared with [dismissReport].
@@ -94,7 +111,11 @@ class GameController extends ChangeNotifier with WidgetsBindingObserver {
     save();
     // While the app is away the ship keeps fighting until its integrity runs out;
     // tell the player when that happens so they come back and repair it.
-    if (!state.disabled) alerts.scheduleAt(_now().add(state.timeToBreakdown));
+    if (alertsEnabled && !state.disabled) {
+      alerts.scheduleAt(
+        alertTimeFor(_now().add(state.timeToBreakdown), quietHours: quietHours),
+      );
+    }
   }
 
   void _applyOffline(DateTime lastSeen) {
@@ -141,10 +162,12 @@ class GameController extends ChangeNotifier with WidgetsBindingObserver {
     return ok;
   }
 
-  void repair() {
-    state.repair();
+  /// Services the ship; returns whether it earned a tune-up.
+  bool repair() {
+    final tunedUp = state.repair();
     save();
     notifyListeners();
+    return tunedUp;
   }
 
   /// Jumps to a new galaxy; returns the Dark Matter gained (0 = not allowed yet).
