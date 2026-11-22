@@ -29,6 +29,8 @@ Code is `dart format` clean. CI and signing: see README.md (same scheme as the B
 | `lib/game/upgrades.dart` | `Upgrade` (costs) and `ShipStats.fromLevels` (effects) |
 | `lib/game/sectors.dart` | Enemy scaling per sector, sector/region names, discoveries |
 | `lib/game/prestige.dart` | Galaxy jump: Dark Matter payout and bonus |
+| `lib/game/ships.dart` | `ShipClass`: the player's hull, one class per galaxy jump (cosmetic) |
+| `lib/ui/ship_art.dart` | GENERATED ship drawings; `ship_art_types.dart` draws them, `ships.dart` maps class/enemy name → art |
 | `lib/services/breakdown_alerts.dart` | "Maintenance due" notification (interface + plugin impl) and quiet hours |
 | `lib/game/offline.dart` | Offline progress = the real simulation, capped at 12h |
 | `lib/game/format.dart` | 1.23K / 4.5M number and duration formatting |
@@ -40,6 +42,23 @@ bottom sheet (`showUpgradeSheet`, opens at half height) behind a full-width **Up
 whose badge counts affordable upgrades. The fight is drawn in the upper part of the battle view
 so it stays visible above the open sheet. Wide screens (Fold inner) keep battle | upgrades side
 by side.
+
+## Ship art
+
+Player and enemy ships come from the design canvas
+(https://claude.ai/artifact/VTpxgS5LzwhNcww319PWWT). `design/player_ships.dc.html` and
+`design/enemy_ships.dc.html` are copies of its artboards; their SVG `<symbol>`s are the source
+of truth. `lib/ui/ship_art.dart` is generated from them by `tool/gen_ship_art.py` (usage in
+its docstring): never hand-edit it; change the design, recopy, regenerate. The generator only
+supports absolute `M/L/C/Z` paths, `rect`, `circle`, `ellipse` with hex fills and `opacity`,
+and fails loudly on anything else.
+- Player ships face right, enemies face left (as drawn). Enemy art is keyed by the exact names
+  in `sectors.dart`; a test fails if a spawnable name has no drawing.
+- `ShipClass.forJumps(prestiges)`: Wayfarer → Meridian → Kestrel → Halcyon → Bastion → Aegis
+  (5+ jumps). Cosmetic only; no stats. Not saved separately: derived from `prestiges`.
+- Enemy factions (in the design): Redwake Corsairs (pirates), Hive Swarm (drones), Null Choir
+  (rogue machines), Void Brood (creatures). All names and designs are original; keep them
+  that way (no franchise ships or names).
 
 ## Rules
 
@@ -93,5 +112,5 @@ by side.
 
 ## Ideas not built yet
 
-A Dark Matter shop (spend DM on permanent perks, e.g. drones that survive a jump), bulk buy (×10 / max), ship classes,
-crew, a star map of cleared sectors, sound, a launcher icon.
+A Dark Matter shop (spend DM on permanent perks, e.g. drones that survive a jump), bulk buy (×10 / max), stats per
+ship class (they're cosmetic now), crew, a star map of cleared sectors, sound, a launcher icon.

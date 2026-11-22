@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'prestige.dart';
 import 'sectors.dart';
+import 'ships.dart';
 import 'upgrades.dart';
 
 enum Phase {
@@ -119,6 +120,9 @@ class GameState {
   bool get bossReady => kills >= killsPerSector;
 
   bool get disabled => phase == Phase.disabled;
+
+  /// The hull the player flies, from the number of galaxy jumps (cosmetic).
+  ShipClass get shipClass => ShipClass.forJumps(prestiges);
 
   bool get tunedUp => tuneUpSeconds > 0;
 

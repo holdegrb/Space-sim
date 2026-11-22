@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Enemy lineup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1280px; height: 2360px; box-sizing: border-box; padding: 56px 64px; background: #070B16; color: #E6ECFF; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 36px;">
+
+<svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+<symbol id="enemy-pirate-scout" viewBox="0 0 240 120">
+<circle cx="196" cy="60" r="12" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M110 46 L140 20 L158 22 L136 48 Z" fill="#4E2624"></path>
+<path d="M120 74 L138 88 L148 86 L134 72 Z" fill="#4E2624"></path>
+<path d="M40 60 L86 44 L150 46 L190 52 L194 68 L150 74 L86 76 Z" fill="#7A3A36"></path>
+<path d="M40 60 L18 58 L40 55 Z" fill="#9A4A42"></path>
+<rect x="100" y="52" width="44" height="8" fill="#9A4A42"></rect>
+<rect x="150" y="62" width="24" height="6" fill="#4E2624"></rect>
+<ellipse cx="78" cy="60" rx="10" ry="4" fill="#FF5A5A"></ellipse>
+<rect x="188" y="54" width="8" height="12" fill="#FF5A5A"></rect>
+<rect x="152" y="22" width="6" height="4" fill="#FF5A5A"></rect>
+</symbol>
+<symbol id="enemy-raider" viewBox="0 0 240 120">
+<circle cx="204" cy="46" r="11" fill="#FF5A5A" opacity="0.35"></circle>
+<circle cx="204" cy="74" r="11" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M30 42 L112 34 L122 50 L62 50 Z" fill="#4E2624"></path>
+<path d="M30 78 L112 86 L122 70 L62 70 Z" fill="#4E2624"></path>
+<path d="M96 42 L172 32 L202 44 L202 76 L172 88 L96 78 Z" fill="#7A3A36"></path>
+<rect x="118" y="54" width="62" height="12" rx="2" fill="#9A4A42"></rect>
+<rect x="104" y="56" width="10" height="8" fill="#FF5A5A"></rect>
+<rect x="198" y="40" width="8" height="12" fill="#FF5A5A"></rect>
+<rect x="198" y="68" width="8" height="12" fill="#FF5A5A"></rect>
+<circle cx="34" cy="42" r="3" fill="#FF5A5A"></circle>
+<circle cx="34" cy="78" r="3" fill="#FF5A5A"></circle>
+</symbol>
+<symbol id="enemy-corsair" viewBox="0 0 240 120">
+<circle cx="210" cy="60" r="14" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M90 50 L150 12 L178 12 L152 50 Z" fill="#4E2624"></path>
+<path d="M90 70 L150 108 L178 108 L152 70 Z" fill="#4E2624"></path>
+<rect x="120" y="24" width="36" height="4" fill="#9A4A42"></rect>
+<rect x="120" y="92" width="36" height="4" fill="#9A4A42"></rect>
+<path d="M22 60 L70 46 L180 44 L206 52 L206 68 L180 76 L70 74 Z" fill="#7A3A36"></path>
+<path d="M60 60 L84 52 L176 52 L176 68 L84 68 Z" fill="#9A4A42"></path>
+<rect x="110" y="58" width="60" height="4" fill="#4E2624"></rect>
+<ellipse cx="70" cy="60" rx="8" ry="4" fill="#FF5A5A"></ellipse>
+<rect x="204" y="50" width="8" height="20" fill="#FF5A5A"></rect>
+<rect x="168" y="12" width="10" height="4" fill="#FF5A5A"></rect>
+<rect x="168" y="104" width="10" height="4" fill="#FF5A5A"></rect>
+</symbol>
+<symbol id="enemy-marauder" viewBox="0 0 240 120">
+<circle cx="208" cy="40" r="12" fill="#FF5A5A" opacity="0.35"></circle>
+<circle cx="208" cy="80" r="12" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M50 38 L180 30 L204 36 L204 84 L180 90 L50 82 Z" fill="#7A3A36"></path>
+<path d="M50 38 L14 52 L14 68 L50 82 Z" fill="#4E2624"></path>
+<path d="M14 52 L4 56 L14 60 Z" fill="#9A4A42"></path>
+<path d="M14 60 L4 64 L14 68 Z" fill="#9A4A42"></path>
+<rect x="66" y="44" width="40" height="12" fill="#9A4A42"></rect>
+<rect x="66" y="64" width="40" height="12" fill="#9A4A42"></rect>
+<rect x="118" y="38" width="56" height="14" fill="#9A4A42"></rect>
+<rect x="118" y="68" width="56" height="14" fill="#9A4A42"></rect>
+<rect x="108" y="58" width="30" height="4" fill="#4E2624"></rect>
+<circle cx="144" cy="60" r="9" fill="#4E2624"></circle>
+<circle cx="144" cy="60" r="3" fill="#FF5A5A"></circle>
+<rect x="56" y="56" width="8" height="8" fill="#FF5A5A"></rect>
+<rect x="202" y="34" width="8" height="12" fill="#FF5A5A"></rect>
+<rect x="202" y="74" width="8" height="12" fill="#FF5A5A"></rect>
+</symbol>
+<symbol id="enemy-scrap-drone" viewBox="0 0 240 120">
+<circle cx="178" cy="60" r="12" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M100 48 L60 22 L44 26 L84 54 Z" fill="#48452C"></path>
+<path d="M100 72 L60 98 L44 94 L84 66 Z" fill="#48452C"></path>
+<path d="M44 26 L28 36 L40 40 Z" fill="#8E8A58"></path>
+<path d="M44 94 L28 84 L40 80 Z" fill="#8E8A58"></path>
+<path d="M84 42 L100 30 L150 30 L166 42 L166 78 L150 90 L100 90 L84 78 Z" fill="#6E6A44"></path>
+<rect x="118" y="36" width="28" height="14" fill="#8E8A58"></rect>
+<rect x="104" y="70" width="22" height="12" fill="#48452C"></rect>
+<rect x="132" y="62" width="22" height="6" fill="#8E8A58"></rect>
+<circle cx="152" cy="82" r="2.5" fill="#E3F03C"></circle>
+<circle cx="158" cy="40" r="2.5" fill="#E3F03C"></circle>
+<circle cx="112" cy="40" r="2.5" fill="#E3F03C"></circle>
+<circle cx="96" cy="60" r="13" fill="#48452C"></circle>
+<circle cx="96" cy="60" r="7" fill="#FF5A5A"></circle>
+<rect x="164" y="52" width="10" height="16" fill="#FF5A5A"></rect>
+</symbol>
+<symbol id="enemy-hive-drone" viewBox="0 0 240 120">
+<ellipse cx="124" cy="34" rx="34" ry="12" fill="#E3F03C" opacity="0.18"></ellipse>
+<ellipse cx="124" cy="86" rx="34" ry="12" fill="#E3F03C" opacity="0.18"></ellipse>
+<circle cx="204" cy="60" r="11" fill="#FF5A5A" opacity="0.35"></circle>
+<ellipse cx="170" cy="60" rx="28" ry="17" fill="#6E6A44"></ellipse>
+<rect x="156" y="45" width="5" height="30" fill="#E3F03C"></rect>
+<rect x="172" y="44" width="5" height="32" fill="#E3F03C"></rect>
+<rect x="188" y="48" width="4" height="24" fill="#E3F03C"></rect>
+<ellipse cx="120" cy="60" rx="26" ry="14" fill="#8E8A58"></ellipse>
+<path d="M34 60 L64 46 L96 50 L96 70 L64 74 Z" fill="#6E6A44"></path>
+<path d="M42 54 L18 44 L34 57 Z" fill="#48452C"></path>
+<path d="M42 66 L18 76 L34 63 Z" fill="#48452C"></path>
+<circle cx="62" cy="54" r="3" fill="#FF5A5A"></circle>
+<circle cx="62" cy="66" r="3" fill="#FF5A5A"></circle>
+<circle cx="200" cy="60" r="4" fill="#FF5A5A"></circle>
+</symbol>
+<symbol id="enemy-sentinel" viewBox="0 0 240 120">
+<circle cx="190" cy="60" r="10" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M68 22 L112 16 L102 34 L72 36 Z" fill="#6C6890"></path>
+<path d="M68 98 L112 104 L102 86 L72 84 Z" fill="#6C6890"></path>
+<path d="M60 60 L120 26 L182 60 L120 94 Z" fill="#4E4A6A"></path>
+<path d="M80 60 L120 38 L160 60 L120 82 Z" fill="#34314A"></path>
+<rect x="128" y="58" width="40" height="4" fill="#E04BFF"></rect>
+<rect x="116" y="34" width="4" height="10" fill="#E04BFF"></rect>
+<rect x="116" y="76" width="4" height="10" fill="#E04BFF"></rect>
+<circle cx="96" cy="60" r="15" fill="#34314A"></circle>
+<circle cx="96" cy="60" r="9" fill="#FF5A5A"></circle>
+<circle cx="93" cy="58" r="3" fill="#FFD6D6"></circle>
+<rect x="180" y="56" width="10" height="8" fill="#FF5A5A"></rect>
+</symbol>
+<symbol id="enemy-void-wasp" viewBox="0 0 240 120">
+<path d="M108 54 L148 12 L170 16 L134 58 Z" fill="#3DF2A0" opacity="0.22"></path>
+<path d="M108 66 L148 108 L170 104 L134 62 Z" fill="#3DF2A0" opacity="0.22"></path>
+<path d="M112 54 L156 14 L160 16 L118 56 Z" fill="#3DF2A0" opacity="0.6"></path>
+<path d="M112 66 L156 106 L160 104 L118 64 Z" fill="#3DF2A0" opacity="0.6"></path>
+<circle cx="222" cy="60" r="9" fill="#FF5A5A" opacity="0.35"></circle>
+<path d="M138 60 L160 47 L200 53 L224 60 L200 67 L160 73 Z" fill="#6A2E5C"></path>
+<circle cx="176" cy="60" r="3" fill="#3DF2A0"></circle>
+<circle cx="194" cy="60" r="2.5" fill="#3DF2A0"></circle>
+<ellipse cx="118" cy="60" rx="22" ry="11" fill="#8A3E78"></ellipse>
+<path d="M14 60 L70 57 L94 52 L100 60 L94 68 L70 63 Z" fill="#44203C"></path>
+<ellipse cx="92" cy="60" rx="12" ry="9" fill="#6A2E5C"></ellipse>
+<circle cx="86" cy="60" r="4" fill="#FF5A5A"></circle>
+<circle cx="220" cy="60" r="3" fill="#FF5A5A"></circle>
+</symbol>
+<symbol id="enemy-pirate-warlord" viewBox="0 0 320 160">
+<circle cx="286" cy="56" r="16" fill="#FF9F1C" opacity="0.35"></circle>
+<circle cx="286" cy="104" r="16" fill="#FF9F1C" opacity="0.35"></circle>
+<path d="M150 50 L200 10 L234 10 L198 52 Z" fill="#4E2624"></path>
+<path d="M150 110 L200 150 L234 150 L198 108 Z" fill="#4E2624"></path>
+<rect x="220" y="10" width="14" height="5" fill="#FF5A5A"></rect>
+<rect x="220" y="145" width="14" height="5" fill="#FF5A5A"></rect>
+<path d="M40 80 L80 54 L240 44 L284 56 L284 104 L240 116 L80 106 Z" fill="#7A3A36"></path>
+<path d="M82 56 L22 58 L8 68 L40 68 L62 72 Z" fill="#4E2624"></path>
+<path d="M82 104 L22 102 L8 92 L40 92 L62 88 Z" fill="#4E2624"></path>
+<path d="M70 80 L96 64 L240 56 L240 104 L96 96 Z" fill="#9A4A42"></path>
+<rect x="168" y="66" width="44" height="12" fill="#8A97B8"></rect>
+<rect x="150" y="86" width="30" height="10" fill="#4E2624"></rect>
+<rect x="104" y="68" width="26" height="4" fill="#4E2624"></rect>
+<circle cx="132" cy="70" r="8" fill="#4E2624"></circle>
+<circle cx="132" cy="70" r="3" fill="#FF9F1C"></circle>
+<rect x="104" y="88" width="26" height="4" fill="#4E2624"></rect>
+<circle cx="132" cy="90" r="8" fill="#4E2624"></circle>
+<circle cx="132" cy="90" r="3" fill="#FF9F1C"></circle>
+<rect x="184" y="96" width="22" height="4" fill="#4E2624"></rect>
+<circle cx="208" cy="98" r="7" fill="#4E2624"></circle>
+<circle cx="208" cy="98" r="3" fill="#FF9F1C"></circle>
+<ellipse cx="228" cy="80" rx="12" ry="9" fill="#4E2624"></ellipse>
+<circle cx="228" cy="80" r="4" fill="#FF5A5A"></circle>
+<rect x="84" y="76" width="12" height="8" fill="#FF9F1C"></rect>
+<rect x="282" y="48" width="10" height="16" fill="#FF9F1C"></rect>
+<rect x="282" y="96" width="10" height="16" fill="#FF9F1C"></rect>
+</symbol>
+<symbol id="enemy-dreadnought" viewBox="0 0 320 160">
+<circle cx="292" cy="60" r="16" fill="#FF9F1C" opacity="0.35"></circle>
+<circle cx="292" cy="100" r="16" fill="#FF9F1C" opacity="0.35"></circle>
+<path d="M120 40 L150 12 L252 12 L262 36 Z" fill="#34314A"></path>
+<path d="M120 120 L150 148 L252 148 L262 124 Z" fill="#34314A"></path>
+<path d="M30 80 L70 40 L270 34 L292 50 L292 110 L270 126 L70 120 Z" fill="#4E4A6A"></path>
+<path d="M70 80 L96 54 L262 50 L262 110 L96 106 Z" fill="#6C6890"></path>
+<rect x="10" y="73" width="124" height="14" fill="#34314A"></rect>
+<rect x="4" y="76" width="10" height="8" fill="#FF9F1C"></rect>
+<rect x="140" y="60" width="108" height="3" fill="#E04BFF"></rect>
+<rect x="140" y="97" width="108" height="3" fill="#E04BFF"></rect>
+<rect x="156" y="22" width="86" height="3" fill="#E04BFF"></rect>
+<rect x="156" y="135" width="86" height="3" fill="#E04BFF"></rect>
+<rect x="100" y="64" width="30" height="8" fill="#34314A"></rect>
+<rect x="100" y="88" width="30" height="8" fill="#34314A"></rect>
+<circle cx="200" cy="80" r="15" fill="#34314A"></circle>
+<circle cx="200" cy="80" r="8" fill="#FF9F1C"></circle>
+<rect x="290" y="52" width="10" height="16" fill="#FF9F1C"></rect>
+<rect x="290" y="92" width="10" height="16" fill="#FF9F1C"></rect>
+</symbol>
+<symbol id="enemy-rogue-ai-core" viewBox="0 0 320 160">
+<circle cx="160" cy="80" r="76" fill="#FF9F1C" opacity="0.08"></circle>
+<path d="M218 70 L268 48 L302 52 L272 62 L226 80 Z" fill="#4E4A6A"></path>
+<path d="M218 90 L268 112 L302 108 L272 98 L226 80 Z" fill="#4E4A6A"></path>
+<circle cx="302" cy="52" r="4" fill="#E04BFF"></circle>
+<circle cx="302" cy="108" r="4" fill="#E04BFF"></circle>
+<circle cx="160" cy="80" r="66" fill="#34314A"></circle>
+<circle cx="160" cy="80" r="58" fill="#03060E"></circle>
+<rect x="150" y="8" width="20" height="22" fill="#03060E"></rect>
+<rect x="150" y="130" width="20" height="22" fill="#03060E"></rect>
+<rect x="88" y="72" width="20" height="16" fill="#03060E"></rect>
+<circle cx="160" cy="80" r="46" fill="#4E4A6A"></circle>
+<circle cx="160" cy="80" r="38" fill="#34314A"></circle>
+<circle cx="160" cy="34" r="4" fill="#E04BFF"></circle>
+<circle cx="160" cy="126" r="4" fill="#E04BFF"></circle>
+<circle cx="206" cy="80" r="4" fill="#E04BFF"></circle>
+<circle cx="194" cy="48" r="3" fill="#E04BFF"></circle>
+<circle cx="194" cy="112" r="3" fill="#E04BFF"></circle>
+<circle cx="146" cy="80" r="22" fill="#6C6890"></circle>
+<circle cx="142" cy="80" r="13" fill="#FF9F1C"></circle>
+<circle cx="140" cy="80" r="5" fill="#FFF1DC"></circle>
+<path d="M54 38 L78 32 L74 48 Z" fill="#6C6890"></path>
+<path d="M54 122 L78 128 L74 112 Z" fill="#6C6890"></path>
+<path d="M70 76 L58 80 L70 84 Z" fill="#FF9F1C"></path>
+</symbol>
+<symbol id="enemy-hive-queen" viewBox="0 0 320 160">
+<ellipse cx="160" cy="34" rx="64" ry="18" fill="#E3F03C" opacity="0.16"></ellipse>
+<ellipse cx="160" cy="126" rx="64" ry="18" fill="#E3F03C" opacity="0.16"></ellipse>
+<circle cx="294" cy="80" r="14" fill="#FF9F1C" opacity="0.35"></circle>
+<ellipse cx="230" cy="80" rx="62" ry="40" fill="#6E6A44"></ellipse>
+<rect x="206" y="44" width="6" height="72" fill="#E3F03C"></rect>
+<rect x="234" y="42" width="6" height="76" fill="#E3F03C"></rect>
+<rect x="262" y="48" width="6" height="64" fill="#E3F03C"></rect>
+<circle cx="222" cy="62" r="5" fill="#FF9F1C"></circle>
+<circle cx="248" cy="98" r="5" fill="#FF9F1C"></circle>
+<circle cx="276" cy="72" r="4" fill="#FF9F1C"></circle>
+<ellipse cx="146" cy="80" rx="34" ry="24" fill="#8E8A58"></ellipse>
+<rect x="130" y="66" width="30" height="4" fill="#48452C"></rect>
+<rect x="130" y="90" width="30" height="4" fill="#48452C"></rect>
+<path d="M60 80 L96 60 L120 64 L120 96 L96 100 Z" fill="#6E6A44"></path>
+<path d="M94 61 L82 34 L104 58 Z" fill="#8E8A58"></path>
+<path d="M108 62 L106 28 L118 62 Z" fill="#8E8A58"></path>
+<path d="M94 99 L82 126 L104 102 Z" fill="#8E8A58"></path>
+<path d="M108 98 L106 132 L118 98 Z" fill="#8E8A58"></path>
+<path d="M66 74 L28 58 L52 77 Z" fill="#48452C"></path>
+<path d="M66 86 L28 102 L52 83 Z" fill="#48452C"></path>
+<circle cx="90" cy="72" r="4" fill="#FF9F1C"></circle>
+<circle cx="90" cy="88" r="4" fill="#FF9F1C"></circle>
+</symbol>
+<symbol id="enemy-void-leviathan" viewBox="0 0 320 160">
+<circle cx="306" cy="82" r="12" fill="#FF9F1C" opacity="0.35"></circle>
+<path d="M120 58 L142 28 L152 62 Z" fill="#44203C"></path>
+<path d="M172 74 L198 46 L204 84 Z" fill="#44203C"></path>
+<path d="M226 100 L254 128 L214 106 Z" fill="#44203C"></path>
+<path d="M70 62 C110 50 140 58 170 72 C200 86 240 94 300 74 L304 84 C250 110 200 108 166 94 C136 82 110 88 70 100 Z" fill="#6A2E5C"></path>
+<path d="M296 74 L316 56 L310 82 L316 106 L296 90 Z" fill="#44203C"></path>
+<path d="M22 68 L70 56 L98 64 L98 98 L70 106 L22 94 L46 81 Z" fill="#8A3E78"></path>
+<path d="M26 70 L36 76 L34 68 Z" fill="#F2D7E8"></path>
+<path d="M26 92 L36 86 L34 94 Z" fill="#F2D7E8"></path>
+<circle cx="42" cy="81" r="5" fill="#FF9F1C"></circle>
+<circle cx="70" cy="70" r="4" fill="#FF9F1C"></circle>
+<circle cx="120" cy="72" r="3" fill="#3DF2A0"></circle>
+<circle cx="150" cy="80" r="3" fill="#3DF2A0"></circle>
+<circle cx="188" cy="92" r="3" fill="#3DF2A0"></circle>
+<circle cx="226" cy="98" r="3" fill="#3DF2A0"></circle>
+<circle cx="266" cy="92" r="2.5" fill="#3DF2A0"></circle>
+<circle cx="84" cy="90" r="2.5" fill="#3DF2A0"></circle>
+</symbol>
+<symbol id="enemy-star-eater" viewBox="0 0 320 160">
+<path d="M196 58 C236 38 268 48 300 28 L306 36 C276 58 246 54 206 74 Z" fill="#44203C"></path>
+<path d="M206 76 C246 74 272 86 308 78 L308 88 C272 96 246 88 206 88 Z" fill="#44203C"></path>
+<path d="M196 102 C236 122 268 112 300 132 L306 124 C276 102 246 106 206 86 Z" fill="#44203C"></path>
+<circle cx="276" cy="48" r="3" fill="#3DF2A0"></circle>
+<circle cx="290" cy="82" r="3" fill="#3DF2A0"></circle>
+<circle cx="276" cy="114" r="3" fill="#3DF2A0"></circle>
+<path d="M146 20 L156 2 L166 20 Z" fill="#8A3E78"></path>
+<path d="M146 140 L156 158 L166 140 Z" fill="#8A3E78"></path>
+<path d="M192 34 L210 22 L204 44 Z" fill="#8A3E78"></path>
+<path d="M192 126 L210 138 L204 116 Z" fill="#8A3E78"></path>
+<circle cx="152" cy="80" r="62" fill="#6A2E5C"></circle>
+<circle cx="168" cy="80" r="44" fill="#8A3E78" opacity="0.5"></circle>
+<ellipse cx="116" cy="80" rx="34" ry="42" fill="#44203C"></ellipse>
+<ellipse cx="112" cy="80" rx="24" ry="30" fill="#FF9F1C" opacity="0.35"></ellipse>
+<ellipse cx="110" cy="80" rx="11" ry="15" fill="#FF9F1C"></ellipse>
+<path d="M110 40 L118 56 L126 40 Z" fill="#F2D7E8"></path>
+<path d="M90 50 L102 62 L104 46 Z" fill="#F2D7E8"></path>
+<path d="M82 73 L98 80 L82 87 Z" fill="#F2D7E8"></path>
+<path d="M90 110 L102 98 L104 114 Z" fill="#F2D7E8"></path>
+<path d="M110 120 L118 104 L126 120 Z" fill="#F2D7E8"></path>
+<path d="M150 70 L136 80 L150 90 Z" fill="#F2D7E8"></path>
+<circle cx="184" cy="42" r="4" fill="#3DF2A0"></circle>
+<circle cx="202" cy="64" r="4" fill="#3DF2A0"></circle>
+<circle cx="202" cy="96" r="4" fill="#3DF2A0"></circle>
+<circle cx="184" cy="118" r="4" fill="#3DF2A0"></circle>
+</symbol>
+</svg>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px;">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 13px; letter-spacing: 3px; color: #8C9BC4; font-weight: 600;">SPACE SIM · HOSTILES</div>
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 48px; font-weight: 700; line-height: 1.05;">Fourteen enemies, four factions</h1>
+<p style="margin: 0; max-width: 720px; font-size: 16px; line-height: 1.5; color: #B6C2E0;">Drawn top-down and facing left, the way they meet your ship in the battle view. Darker, harsher hulls than the player's grey-blue; each faction has its own shape language and accent. Regulars burn red, bosses burn orange.</p>
+</div>
+<div style="display: flex; gap: 16px; font-size: 13px; color: #B6C2E0;">
+<div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #FF5A5A;"></div>Regular</div>
+<div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #FF9F1C;"></div>Boss</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px;">
+<div style="background: #111A2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border-top: 3px solid #FF5A5A;">
+<div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #FF5A5A;"></div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;">Redwake Corsairs</div></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #B6C2E0;">Jagged, asymmetric hulls with hooked rams, bolted-on plates and salvaged parts. Rust-red armour.</p>
+<div style="font-size: 12px; line-height: 1.4; color: #8C9BC4;">Pirate Scout, Raider, Corsair, Marauder, Pirate Warlord</div>
+</div><div style="background: #111A2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border-top: 3px solid #E3F03C;">
+<div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #E3F03C;"></div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;">Hive Swarm</div></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #B6C2E0;">Rounded, segmented bodies of chitin and scrap, claws and mandibles, banded in acid yellow.</p>
+<div style="font-size: 12px; line-height: 1.4; color: #8C9BC4;">Scrap Drone, Hive Drone, Hive Queen</div>
+</div><div style="background: #111A2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border-top: 3px solid #E04BFF;">
+<div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #E04BFF;"></div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;">Null Choir</div></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #B6C2E0;">Hard geometry: diamonds, slabs and rings, one staring lens, magenta circuit lines. Rogue machines.</p>
+<div style="font-size: 12px; line-height: 1.4; color: #8C9BC4;">Sentinel, Dreadnought, Rogue AI Core</div>
+</div><div style="background: #111A2E; border-radius: 14px; padding: 16px; display: flex; flex-direction: column; gap: 6px; border-top: 3px solid #3DF2A0;">
+<div style="display: flex; align-items: center; gap: 8px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #3DF2A0;"></div><div style="font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 600;">Void Brood</div></div>
+<p style="margin: 0; font-size: 13px; line-height: 1.5; color: #B6C2E0;">Living curves, glassy wings, teeth and bioluminescent green spots. Creatures, not ships.</p>
+<div style="font-size: 12px; line-height: 1.4; color: #8C9BC4;">Void Wasp, Void Leviathan, Star Eater</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px;">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600;">Regulars</div>
+<div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 24px;">
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Pirate Scout, top view, facing left"><use href="#enemy-pirate-scout"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Pirate Scout</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF5A5A; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">REDWAKE CORSAIRS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A hooked dart with one salvaged fin bolted on. Fast, flimsy, and first to find you.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-pirate-scout"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Scrap Drone, top view, facing left"><use href="#enemy-scrap-drone"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Scrap Drone</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E3F03C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">HIVE SWARM</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A patched octagon of junk with two grabbing claws and a single red eye.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-scrap-drone"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Raider, top view, facing left"><use href="#enemy-raider"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Raider</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF5A5A; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">REDWAKE CORSAIRS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">Twin ram prongs out front and a stubby gunship behind. Hits hard, then bolts.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-raider"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Void Wasp, top view, facing left"><use href="#enemy-void-wasp"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Void Wasp</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #3DF2A0; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">VOID BROOD</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A slender lance-headed hunter on glassy green wings. Strikes nose first.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-void-wasp"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Corsair, top view, facing left"><use href="#enemy-corsair"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Corsair</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF5A5A; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">REDWAKE CORSAIRS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A long pirate frigate with swept sail fins and broadside guns along each one.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-corsair"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Sentinel, top view, facing left"><use href="#enemy-sentinel"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Sentinel</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E04BFF; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">NULL CHOIR</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A diamond turret platform behind one huge lens, flanked by floating shield plates.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-sentinel"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Hive Drone, top view, facing left"><use href="#enemy-hive-drone"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Hive Drone</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E3F03C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">HIVE SWARM</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">Chitin and scrap fused into an insect body: banded abdomen, mandibles, buzzing wings.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-hive-drone"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 150px; display: flex; align-items: center; justify-content: center;">
+<svg width="220" height="110" viewBox="0 0 240 120" role="img" aria-label="Marauder, top view, facing left"><use href="#enemy-marauder"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Marauder</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF5A5A; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">REDWAKE CORSAIRS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A heavy armoured brick with a toothed ram and a dorsal turret. The pirates' bruiser.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Regular</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="88" height="44" viewBox="0 0 240 120" aria-hidden="true"><use href="#enemy-marauder"></use></svg></span></span>
+</div>
+</div>
+</div>
+</div>
+
+<div style="display: flex; flex-direction: column; gap: 16px;">
+<div style="font-family: 'Space Grotesk', sans-serif; font-size: 26px; font-weight: 600;">Bosses</div>
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Pirate Warlord, top view, facing left"><use href="#enemy-pirate-warlord"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Pirate Warlord</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF5A5A; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">REDWAKE CORSAIRS</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">The Redwake flagship: hooked twin rams, three gun turrets and a plate stripped from a captured explorer.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-pirate-warlord"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Dreadnought, top view, facing left"><use href="#enemy-dreadnought"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Dreadnought</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E04BFF; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">NULL CHOIR</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A slab-sided machine warship built around one spinal cannon that runs the length of its hull.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-dreadnought"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Hive Queen, top view, facing left"><use href="#enemy-hive-queen"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Hive Queen</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E3F03C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">HIVE SWARM</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A crowned head, a swollen egg-laden abdomen and wings wide enough to shade a whole swarm.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-hive-queen"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Rogue AI Core, top view, facing left"><use href="#enemy-rogue-ai-core"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Rogue AI Core</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #E04BFF; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">NULL CHOIR</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A broken-ringed sphere with one burning eye, trailing data cables and drifting armour shards.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-rogue-ai-core"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Void Leviathan, top view, facing left"><use href="#enemy-void-leviathan"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Void Leviathan</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #3DF2A0; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">VOID BROOD</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A serpent the length of a fleet, studded with glowing spots, its open jaw leading the way.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-void-leviathan"></use></svg></span></span>
+</div>
+</div><div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #6B4A22;">
+<div style="background: #03060E; border-radius: 12px; height: 200px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" viewBox="0 0 320 160" role="img" aria-label="Star Eater, top view, facing left"><use href="#enemy-star-eater"></use></svg>
+</div>
+<div style="display: flex; flex-direction: column; gap: 8px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Star Eater</h2>
+<div style="display: flex; gap: 6px; flex-wrap: wrap;"><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #3DF2A0; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">VOID BROOD</div><div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px; white-space: nowrap;">BOSS</div></div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A living maw ringed with teeth, still glowing with the last star it swallowed. Tentacles trail behind.</p>
+<div style="margin-top: auto; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Boss · 8x HP</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <span style="background: #03060E; border-radius: 8px; padding: 4px 6px; display: flex;"><svg width="110" height="55" viewBox="0 0 320 160" aria-hidden="true"><use href="#enemy-star-eater"></use></svg></span></span>
+</div>
+</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2360}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>

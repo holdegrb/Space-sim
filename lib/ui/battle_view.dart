@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 
 import '../game/game_state.dart';
+import 'ships.dart';
 import 'theme.dart';
 
 /// The fight, drawn from [GameState] each frame: parallax stars (streaking while
@@ -52,6 +53,10 @@ class _BattlePainter extends CustomPainter {
     final player = Offset(size.width * 0.22, size.height * 0.36);
     final foe = Offset(size.width * 0.74, size.height * 0.33);
     final e = s.enemy;
+    final art = playerArt(s.shipClass);
+    final playerW = 104 * scale;
+    final foeArt = e == null ? null : enemyArt[e.name];
+    final foeW = (e?.isBoss ?? false) ? 128 * scale : 84 * scale;
 
     // Lasers fade over 150ms after each shot.
     if (e != null) {
@@ -59,7 +64,7 @@ class _BattlePainter extends CustomPainter {
       if (pAge < 0.15) {
         _laser(
           canvas,
-          player + Offset(22 * scale, 0),
+          player + Offset(playerW * 0.4, 0),
           foe,
           SpaceColors.accent,
           1 - pAge / 0.15,
@@ -70,7 +75,7 @@ class _BattlePainter extends CustomPainter {
       if (eAge < 0.15) {
         _laser(
           canvas,
-          foe - Offset(18 * scale, 0),
+          foe - Offset(foeW * 0.38, 0),
           player,
           e.isBoss ? SpaceColors.boss : SpaceColors.enemy,
           1 - eAge / 0.15,
@@ -80,12 +85,12 @@ class _BattlePainter extends CustomPainter {
     }
 
     final down = s.phase == Phase.repairing || s.phase == Phase.disabled;
-    _ship(canvas, player, scale, down);
+    art.paint(canvas, player, playerW, dim: down ? 0.55 : 0);
     if (s.stats.maxShield > 0 && s.shield > 0 && !down) {
       final a = (s.shield / s.stats.maxShield).clamp(0.0, 1.0);
       canvas.drawCircle(
         player,
-        34 * scale,
+        playerW * 0.52,
         Paint()
           ..color = SpaceColors.shield.withValues(alpha: 0.12 + 0.35 * a)
           ..style = PaintingStyle.stroke
@@ -95,13 +100,12 @@ class _BattlePainter extends CustomPainter {
 
     if (e != null) {
       final hit = s.clock - s.lastPlayerShot < 0.08;
-      _enemy(canvas, foe, scale * (e.isBoss ? 1.7 : 1), e.isBoss, hit);
-      final w = (e.isBoss ? 110 : 70) * scale;
+      foeArt?.paint(canvas, foe, foeW, flash: hit ? 0.6 : 0);
       _bar(
         canvas,
         Rect.fromCenter(
-          center: foe - Offset(0, (e.isBoss ? 52 : 34) * scale),
-          width: w,
+          center: foe - Offset(0, foeW * 0.32 + 10 * scale),
+          width: foeW * 0.85,
           height: 6 * scale,
         ),
         e.hp / e.maxHp,
@@ -112,7 +116,7 @@ class _BattlePainter extends CustomPainter {
     final label = switch (s.phase) {
       Phase.warping => 'WARPING',
       Phase.repairing => 'REPAIRING',
-      Phase.disabled => 'BROKEN DOWN',
+      Phase.disabled => 'MAINTENANCE DUE',
       Phase.fighting => e!.name.toUpperCase(),
     };
     final tp = TextPainter(
@@ -148,53 +152,6 @@ class _BattlePainter extends CustomPainter {
         canvas.drawCircle(p, 0.6 + depth, paint);
       }
     }
-  }
-
-  void _ship(Canvas canvas, Offset c, double k, bool damaged) {
-    final body = Path()
-      ..moveTo(c.dx + 24 * k, c.dy)
-      ..lineTo(c.dx - 14 * k, c.dy - 14 * k)
-      ..lineTo(c.dx - 8 * k, c.dy)
-      ..lineTo(c.dx - 14 * k, c.dy + 14 * k)
-      ..close();
-    // Engine glow flickers with the clock.
-    final flicker = 0.7 + 0.3 * sin(s.clock * 40);
-    if (!damaged) {
-      canvas.drawCircle(
-        c - Offset(12 * k, 0),
-        6 * k * flicker,
-        Paint()..color = SpaceColors.boss.withValues(alpha: 0.8),
-      );
-    }
-    canvas.drawPath(
-      body,
-      Paint()
-        ..color = damaged
-            ? SpaceColors.muted.withValues(alpha: 0.5)
-            : SpaceColors.accent,
-    );
-    canvas.drawCircle(
-      c + Offset(4 * k, 0),
-      3 * k,
-      Paint()..color = SpaceColors.bg,
-    );
-  }
-
-  void _enemy(Canvas canvas, Offset c, double k, bool boss, bool hit) {
-    final color = hit
-        ? Colors.white
-        : (boss ? SpaceColors.boss : SpaceColors.enemy);
-    final sides = boss ? 6 : 4;
-    final path = Path();
-    for (var i = 0; i < sides; i++) {
-      final a = s.clock * (boss ? 0.4 : 1.2) + i * 2 * pi / sides;
-      final p = c + Offset(cos(a), sin(a)) * 18 * k;
-      i == 0 ? path.moveTo(p.dx, p.dy) : path.lineTo(p.dx, p.dy);
-    }
-    path.close();
-    canvas.drawPath(path, Paint()..color = color);
-    canvas.drawCircle(c, 6 * k, Paint()..color = SpaceColors.bg);
-    canvas.drawCircle(c, 3 * k, Paint()..color = color);
   }
 
   void _laser(

@@ -5,10 +5,13 @@ import '../game/game_state.dart';
 import '../game/offline.dart';
 import '../game/prestige.dart';
 import '../game/sectors.dart';
+import '../game/ships.dart';
 import '../game/upgrades.dart';
 import '../game_controller.dart';
 import '../services/breakdown_alerts.dart';
 import 'battle_view.dart';
+import 'ship_art_types.dart';
+import 'ships.dart';
 import 'theme.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -796,7 +799,9 @@ class _PrestigeTile extends StatelessWidget {
             'shields and credits, forever. Now: ×${bonus.toStringAsFixed(1)}.',
             style: small?.copyWith(color: SpaceColors.muted),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
+          _ShipUpgradePreview(current: s.shipClass),
+          const SizedBox(height: 10),
           if (reward > 0) ...[
             FilledButton.icon(
               style: FilledButton.styleFrom(
@@ -824,13 +829,15 @@ class _PrestigeTile extends StatelessWidget {
   }
 
   Future<void> _confirm(BuildContext context, int reward) async {
+    final next = controller.state.shipClass.next;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Jump to a new galaxy?'),
         content: Text(
           'You gain $reward Dark Matter and lose this run\'s sectors, credits and '
-          'upgrades.',
+          'upgrades.'
+          '${next == null ? '' : ' Your ship becomes the ${next.fullName}.'}',
         ),
         actions: [
           TextButton(
@@ -844,6 +851,91 @@ class _PrestigeTile extends StatelessWidget {
         ],
       ),
     );
-    if (ok == true) controller.prestige();
+    if (ok != true) return;
+    final before = controller.state.shipClass;
+    if (controller.prestige() > 0 && controller.state.shipClass != before) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context)
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text(
+              'New ship: the ${controller.state.shipClass.fullName}!',
+            ),
+          ),
+        );
+    }
   }
+}
+
+/// In the galaxy-jump card: the ship you fly now and the one the next jump brings.
+class _ShipUpgradePreview extends StatelessWidget {
+  const _ShipUpgradePreview({required this.current});
+
+  final ShipClass current;
+
+  @override
+  Widget build(BuildContext context) {
+    final next = current.next;
+    final small = Theme.of(context).textTheme.bodySmall;
+    Widget ship(ShipClass c, String caption) => Expanded(
+      child: Column(
+        children: [
+          ShipArtView(art: playerArt(c), height: 52),
+          const SizedBox(height: 2),
+          Text(
+            c.label,
+            style: Theme.of(context).textTheme.labelLarge,
+            overflow: TextOverflow.ellipsis,
+          ),
+          Text(
+            caption,
+            style: small?.copyWith(color: SpaceColors.muted),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+    return Row(
+      children: [
+        ship(current, 'Your ship'),
+        if (next != null) ...[
+          const Icon(Icons.arrow_forward, color: SpaceColors.prestige),
+          ship(next, 'Next jump'),
+        ],
+      ],
+    );
+  }
+}
+
+/// A [ShipArt] as a widget, scaled to [height].
+class ShipArtView extends StatelessWidget {
+  const ShipArtView({super.key, required this.art, required this.height});
+
+  final ShipArt art;
+  final double height;
+
+  @override
+  Widget build(BuildContext context) {
+    final width = height * art.width / art.height;
+    return SizedBox(
+      width: width,
+      height: height,
+      child: CustomPaint(painter: _ArtPainter(art)),
+    );
+  }
+}
+
+class _ArtPainter extends CustomPainter {
+  _ArtPainter(this.art);
+
+  final ShipArt art;
+
+  @override
+  void paint(Canvas canvas, Size size) =>
+      art.paint(canvas, size.center(Offset.zero), size.width);
+
+  @override
+  bool shouldRepaint(_ArtPainter old) => old.art != art;
 }

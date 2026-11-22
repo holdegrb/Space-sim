@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ship lineup</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Space+Grotesk:wght@500;600;700&amp;display=swap" rel="stylesheet">
+<style>
+body{margin:0}
+a{color:#4FD1FF}a:hover{color:#9BE4FF}
+</style>
+</helmet>
+<div style="width: 1280px; height: 1180px; box-sizing: border-box; padding: 56px 64px; background: #070B16; color: #E6ECFF; font-family: Inter, system-ui, sans-serif; display: flex; flex-direction: column; gap: 36px;">
+
+<svg width="0" height="0" style="position: absolute;" aria-hidden="true">
+<symbol id="ship-wayfarer" viewBox="0 0 320 160">
+<path d="M150 70 L118 46 L110 46 L136 72 Z" fill="#8A97B8"></path>
+<path d="M150 90 L118 114 L110 114 L136 88 Z" fill="#8A97B8"></path>
+<rect x="64" y="38" width="92" height="12" rx="6" fill="#A9B5D1"></rect>
+<rect x="74" y="42" width="66" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="152" cy="44" r="5" fill="#FF9F1C"></circle>
+<rect x="64" y="110" width="92" height="12" rx="6" fill="#A9B5D1"></rect>
+<rect x="74" y="114" width="66" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="152" cy="116" r="5" fill="#FF9F1C"></circle>
+<circle cx="98" cy="80" r="10" fill="#FF7A45" opacity="0.35"></circle>
+<path d="M256 80 L160 64 L114 68 L100 80 L114 92 L160 96 Z" fill="#C9D3EA"></path>
+<path d="M256 80 L160 74 L120 76 L120 84 L160 86 Z" fill="#A9B5D1"></path>
+<ellipse cx="204" cy="80" rx="16" ry="5" fill="#E6ECFF"></ellipse>
+<circle cx="100" cy="80" r="4" fill="#FF7A45"></circle>
+</symbol>
+
+<symbol id="ship-meridian" viewBox="0 0 320 160">
+<path d="M150 72 L112 34 L96 34 L124 72 Z" fill="#8A97B8"></path>
+<path d="M150 88 L112 126 L96 126 L124 88 Z" fill="#8A97B8"></path>
+<rect x="38" y="24" width="96" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="48" y="29" width="70" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="132" cy="31" r="6" fill="#FF9F1C"></circle>
+<rect x="38" y="122" width="96" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="48" y="127" width="70" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="132" cy="129" r="6" fill="#FF9F1C"></circle>
+<circle cx="88" cy="80" r="11" fill="#FF7A45" opacity="0.35"></circle>
+<path d="M176 68 L104 70 L88 80 L104 90 L176 92 Z" fill="#A9B5D1"></path>
+<circle cx="90" cy="80" r="4" fill="#FF7A45"></circle>
+<ellipse cx="206" cy="80" rx="58" ry="36" fill="#C9D3EA"></ellipse>
+<ellipse cx="206" cy="80" rx="42" ry="25" fill="#A9B5D1"></ellipse>
+<ellipse cx="206" cy="80" rx="40" ry="23" fill="#C9D3EA"></ellipse>
+<ellipse cx="216" cy="80" rx="12" ry="8" fill="#E6ECFF"></ellipse>
+<rect x="246" y="78" width="12" height="4" rx="2" fill="#4FD1FF"></rect>
+</symbol>
+
+<symbol id="ship-kestrel" viewBox="0 0 320 160">
+<rect x="82" y="44" width="100" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="92" y="49" width="70" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="180" cy="51" r="5" fill="#FF9F1C"></circle>
+<rect x="82" y="102" width="100" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="92" y="107" width="70" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="180" cy="109" r="5" fill="#FF9F1C"></circle>
+<rect x="196" y="66" width="58" height="5" rx="2" fill="#8A97B8"></rect>
+<rect x="196" y="89" width="58" height="5" rx="2" fill="#8A97B8"></rect>
+<circle cx="92" cy="80" r="13" fill="#FF7A45" opacity="0.35"></circle>
+<path d="M246 80 L176 60 L112 58 L94 68 L94 92 L112 102 L176 100 Z" fill="#C9D3EA"></path>
+<path d="M246 80 L176 72 L120 72 L120 88 L176 88 Z" fill="#A9B5D1"></path>
+<ellipse cx="186" cy="80" rx="10" ry="5" fill="#E6ECFF"></ellipse>
+<rect x="90" y="70" width="6" height="6" fill="#FF7A45"></rect>
+<rect x="90" y="84" width="6" height="6" fill="#FF7A45"></rect>
+</symbol>
+
+<symbol id="ship-halcyon" viewBox="0 0 320 160">
+<rect x="120" y="54" width="6" height="22" fill="#8A97B8"></rect>
+<rect x="120" y="84" width="6" height="22" fill="#8A97B8"></rect>
+<rect x="162" y="54" width="5" height="22" fill="#8A97B8"></rect>
+<rect x="162" y="84" width="5" height="22" fill="#8A97B8"></rect>
+<rect x="56" y="44" width="130" height="10" rx="5" fill="#A9B5D1"></rect>
+<rect x="66" y="47" width="100" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="184" cy="49" r="5" fill="#FF9F1C"></circle>
+<rect x="56" y="106" width="130" height="10" rx="5" fill="#A9B5D1"></rect>
+<rect x="66" y="109" width="100" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="184" cy="111" r="5" fill="#FF9F1C"></circle>
+<path d="M112 76 L92 62 L84 62 L100 76 Z" fill="#8A97B8"></path>
+<path d="M112 84 L92 98 L84 98 L100 84 Z" fill="#8A97B8"></path>
+<circle cx="84" cy="80" r="11" fill="#FF7A45" opacity="0.35"></circle>
+<rect x="84" y="74" width="170" height="12" rx="6" fill="#A9B5D1"></rect>
+<circle cx="86" cy="80" r="4" fill="#FF7A45"></circle>
+<ellipse cx="214" cy="80" rx="30" ry="14" fill="#C9D3EA"></ellipse>
+<ellipse cx="224" cy="80" rx="10" ry="4" fill="#E6ECFF"></ellipse>
+<ellipse cx="264" cy="80" rx="16" ry="38" fill="#4FD1FF" opacity="0.18"></ellipse>
+<ellipse cx="264" cy="80" rx="9" ry="32" fill="#4FD1FF"></ellipse>
+<ellipse cx="264" cy="80" rx="5" ry="27" fill="#070B16"></ellipse>
+</symbol>
+
+<symbol id="ship-bastion" viewBox="0 0 320 160">
+<path d="M150 62 L120 30 L108 30 L134 62 Z" fill="#8A97B8"></path>
+<path d="M150 98 L120 130 L108 130 L134 98 Z" fill="#8A97B8"></path>
+<rect x="52" y="20" width="112" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="62" y="25" width="84" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="162" cy="27" r="6" fill="#FF9F1C"></circle>
+<rect x="52" y="126" width="112" height="14" rx="7" fill="#A9B5D1"></rect>
+<rect x="62" y="131" width="84" height="4" rx="2" fill="#4FD1FF"></rect>
+<circle cx="162" cy="133" r="6" fill="#FF9F1C"></circle>
+<rect x="76" y="42" width="80" height="10" rx="5" fill="#A9B5D1"></rect>
+<rect x="84" y="45" width="58" height="3" rx="1.5" fill="#4FD1FF"></rect>
+<rect x="76" y="108" width="80" height="10" rx="5" fill="#A9B5D1"></rect>
+<rect x="84" y="111" width="58" height="3" rx="1.5" fill="#4FD1FF"></rect>
+<circle cx="92" cy="72" r="10" fill="#FF7A45" opacity="0.35"></circle>
+<circle cx="92" cy="88" r="10" fill="#FF7A45" opacity="0.35"></circle>
+<path d="M266 80 L222 58 L142 52 L100 58 L90 80 L100 102 L142 108 L222 102 Z" fill="#C9D3EA"></path>
+<path d="M266 80 L222 66 L142 62 L108 66 L108 94 L142 98 L222 94 Z" fill="#A9B5D1"></path>
+<path d="M250 80 L216 72 L150 70 L150 90 L216 88 Z" fill="#C9D3EA"></path>
+<ellipse cx="196" cy="80" rx="14" ry="4" fill="#E6ECFF"></ellipse>
+<circle cx="238" cy="80" r="7" fill="#4FD1FF"></circle>
+<rect x="86" y="68" width="6" height="8" fill="#FF7A45"></rect>
+<rect x="86" y="84" width="6" height="8" fill="#FF7A45"></rect>
+</symbol>
+
+<symbol id="ship-aegis" viewBox="0 0 320 160">
+<path d="M190 56 L150 34 L100 34 L110 56 Z" fill="#8A97B8"></path>
+<path d="M190 104 L150 126 L100 126 L110 104 Z" fill="#8A97B8"></path>
+<rect x="36" y="22" width="140" height="16" rx="8" fill="#A9B5D1"></rect>
+<rect x="48" y="28" width="110" height="4" rx="2" fill="#B98CFF"></rect>
+<circle cx="174" cy="30" r="6" fill="#B98CFF"></circle>
+<rect x="36" y="122" width="140" height="16" rx="8" fill="#A9B5D1"></rect>
+<rect x="48" y="128" width="110" height="4" rx="2" fill="#B98CFF"></rect>
+<circle cx="174" cy="130" r="6" fill="#B98CFF"></circle>
+<circle cx="68" cy="66" r="10" fill="#B98CFF" opacity="0.3"></circle>
+<circle cx="66" cy="80" r="11" fill="#B98CFF" opacity="0.3"></circle>
+<circle cx="68" cy="94" r="10" fill="#B98CFF" opacity="0.3"></circle>
+<path d="M288 80 L204 50 L124 44 L76 54 L66 80 L76 106 L124 116 L204 110 Z" fill="#C9D3EA"></path>
+<path d="M288 80 L204 62 L130 58 L90 64 L90 96 L130 102 L204 98 Z" fill="#A9B5D1"></path>
+<path d="M262 80 L200 72 L120 70 L120 90 L200 88 Z" fill="#C9D3EA"></path>
+<ellipse cx="220" cy="80" rx="16" ry="5" fill="#E6ECFF"></ellipse>
+<path d="M288 80 L252 76 L252 84 Z" fill="#B98CFF"></path>
+<rect x="62" y="62" width="8" height="8" fill="#B98CFF"></rect>
+<rect x="60" y="76" width="8" height="8" fill="#B98CFF"></rect>
+<rect x="62" y="90" width="8" height="8" fill="#B98CFF"></rect>
+</symbol>
+</svg>
+
+<div style="display: flex; justify-content: space-between; align-items: flex-end; gap: 32px;">
+<div style="display: flex; flex-direction: column; gap: 10px;">
+<div style="font-size: 13px; letter-spacing: 3px; color: #8C9BC4; font-weight: 600;">SPACE SIM · SHIPYARD CONCEPTS</div>
+<h1 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 48px; font-weight: 700; line-height: 1.05;">Six starships, one silhouette family</h1>
+<p style="margin: 0; max-width: 720px; font-size: 16px; line-height: 1.5; color: #B6C2E0;">Sleek explorer hulls with twin warp nacelles, drawn top-down and facing right, the way the battle view shows your ship. Cyan nacelle glow and amber intakes tie them together; the prestige ship switches to Dark Matter violet.</p>
+</div>
+<div style="display: flex; gap: 16px; font-size: 13px; color: #B6C2E0;">
+<div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #4FD1FF;"></div>Warp glow</div>
+<div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #FF9F1C;"></div>Intakes</div>
+<div style="display: flex; align-items: center; gap: 6px;"><div style="width: 12px; height: 12px; border-radius: 6px; background: #B98CFF;"></div>Dark Matter</div>
+</div>
+</div>
+
+<div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 24px;">
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Wayfarer-class scout, top view"><use href="#ship-wayfarer"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Wayfarer</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #4FD1FF; border-radius: 10px; padding: 3px 10px;">SCOUT</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">Slim arrowhead hull with nacelles slung out on swept pylons. Light, quick, a little fragile: the ship every captain starts in.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: starting ship</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-wayfarer"></use></svg></span>
+</div>
+</div>
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Meridian-class explorer, top view"><use href="#ship-meridian"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Meridian</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #4FD1FF; border-radius: 10px; padding: 3px 10px;">EXPLORER</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">An elongated lens hull blended straight into the engineering body, with wide-set nacelles on swept wings. The classic long-range explorer shape.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: reach sector 15</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-meridian"></use></svg></span>
+</div>
+</div>
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Kestrel-class frigate, top view"><use href="#ship-kestrel"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Kestrel</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px;">FRIGATE</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">Compact wedge with nacelle pods hugging the hull and twin forward cannons. Built for fighting, not sightseeing.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: reach sector 25</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-kestrel"></use></svg></span>
+</div>
+</div>
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Halcyon-class science vessel, top view"><use href="#ship-halcyon"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Halcyon</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #4FD1FF; border-radius: 10px; padding: 3px 10px;">SCIENCE</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A long spine between thin nacelles, a command pod amidships and a sensor ring up front. Looks delicate; sees everything.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: first galaxy jump</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-halcyon"></use></svg></span>
+</div>
+</div>
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Bastion-class heavy cruiser, top view"><use href="#ship-bastion"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Bastion</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #FF9F1C; border-radius: 10px; padding: 3px 10px;">HEAVY CRUISER</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">Layered armour plating, a forward deflector and four nacelles stacked in pairs. Slow to turn, very hard to stop.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: reach sector 50</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-bastion"></use></svg></span>
+</div>
+</div>
+
+<div style="background: #111A2E; border-radius: 16px; padding: 20px; display: flex; flex-direction: column; gap: 14px; border: 1px solid #5B4A80;">
+<div style="background: #03060E; border-radius: 12px; height: 190px; display: flex; align-items: center; justify-content: center;">
+<svg width="320" height="160" role="img" aria-label="Aegis-class dreadnought, top view"><use href="#ship-aegis"></use></svg>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px;">
+<h2 style="margin: 0; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 600;">Aegis</h2>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 1px; color: #070B16; background: #B98CFF; border-radius: 10px; padding: 3px 10px;">DREADNOUGHT</div>
+</div>
+<p style="margin: 0; font-size: 14px; line-height: 1.5; color: #B6C2E0;">A massive arrowhead with wingtip nacelles and triple engines, trimmed in Dark Matter violet. The ship you earn by going deep, again and again.</p>
+<div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #1A2642; padding-top: 12px; font-size: 13px; color: #8C9BC4;">
+<span>Unlock: 100 Dark Matter</span>
+<span style="display: flex; align-items: center; gap: 8px;">Battle size <svg width="72" height="36" aria-hidden="true"><use href="#ship-aegis"></use></svg></span>
+</div>
+</div>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1180}}'>
+class Component extends DCLogic {
+renderVals() {
+return {};
+}
+}
+</script>
+</body>
+</html>
