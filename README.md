@@ -14,6 +14,9 @@ fighting while you're away, but not forever: see wear below.
   **Service**. Servicing is free, and if the ship was at half or below you get a 15-minute
   **tune-up** (+25% damage and credits). A notification tells you when maintenance is due; it
   waits until 8am if that falls overnight, and both can be turned off from the ⋮ menu.
+- **Ships:** you start in a Wayfarer-class scout; every galaxy jump moves you up a class, up
+  to the Aegis-class dreadnought. Enemies come from four factions: Redwake Corsairs, the Hive
+  Swarm, the Null Choir and the Void Brood.
 - **Galaxy jump (prestige):** from sector 25 you can start over in a new galaxy for Dark Matter.
   Each point is a permanent +10% to damage, hull, shields and credits. Deeper runs pay more.
 - **Losing** is never a game over. Lose to a boss and the ship repairs and farms the sector until

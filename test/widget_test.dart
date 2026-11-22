@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:space_sim/game/ships.dart';
 import 'package:space_sim/game/upgrades.dart';
 import 'package:space_sim/game_controller.dart';
 import 'package:space_sim/main.dart';
@@ -137,6 +138,8 @@ void main() {
     await tester.pumpAndSettle();
     expect(c.state.darkMatter, 4);
     expect(c.state.sector, 1);
+    expect(c.state.shipClass, ShipClass.meridian);
+    expect(find.text('New ship: the Meridian-class explorer!'), findsOneWidget);
   });
 
   testWidgets('no alert is scheduled when the player turned alerts off', (
