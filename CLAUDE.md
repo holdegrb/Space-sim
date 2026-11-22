@@ -94,7 +94,8 @@ and fails loudly on anything else.
     Players can turn alerts and quiet hours off from the ⋮ menu (`alerts_enabled`,
     `alerts_quiet_hours` in prefs, both default on).
 - **Prestige (galaxy jump):** from sector 25, `prestige()` pays `darkMatterFor(bestSector)`
-  (quadratic) and resets sector, credits, all upgrade levels (drones too) and integrity. Each Dark
+  (quadratic) and resets credits, upgrade levels (drones too, unless Drone memory) and integrity;
+  the new run starts at sector 1 or Warp start's `jumpStartSector`. Shop perks stay. Each Dark
   Matter adds +10% (additive) to damage, hull, shields and credits via `ShipStats.fromLevels`.
   The payout was exponential once and ran away (sector 270, 700M DM by day 5); keep it
   polynomial and check `tool/balance_sim.dart` (it simulates players checking in every 2/4/8h
