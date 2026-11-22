@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:space_sim/game/dark_matter_shop.dart';
 import 'package:space_sim/game/ships.dart';
 import 'package:space_sim/game/upgrades.dart';
 import 'package:space_sim/game_controller.dart';
@@ -155,5 +156,37 @@ void main() {
     tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.paused);
     expect(alerts.scheduled, isEmpty);
     c.dispose();
+  });
+
+  testWidgets('the Dark Matter shop sells perks from the upgrades sheet', (
+    tester,
+  ) async {
+    SharedPreferences.setMockInitialValues({
+      'save': '{"v":2,"sector":3,"darkMatter":10,"prestiges":1}',
+    });
+    tester.view.physicalSize = const Size(400, 860);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final c = await GameController.load();
+    await tester.pumpWidget(SpaceSimApp(controller: c));
+    await tester.tap(find.text('Upgrades'));
+    await tester.pumpAndSettle();
+    final tile = find.widgetWithText(ListTile, 'Overcharged cannons  ·  Lv 0');
+    await tester.scrollUntilVisible(
+      tile,
+      200,
+      scrollable: find.descendant(
+        of: find.byType(ListView),
+        matching: find.byType(Scrollable),
+      ),
+    );
+    await tester.pumpAndSettle();
+    expect(find.text('10 to spend'), findsOneWidget);
+    await tester.tap(
+      find.descendant(of: tile, matching: find.byType(FilledButton)),
+    );
+    await tester.pump();
+    expect(c.state.perks[Perk.cannons], 1);
+    expect(find.text('7 to spend'), findsOneWidget);
   });
 }

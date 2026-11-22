@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'dark_matter_shop.dart';
 import 'prestige.dart';
 
 /// Everything the player can buy with credits. Levels start at 0; [cost] grows
@@ -42,29 +43,37 @@ class ShipStats {
     required this.warpDelay,
     required this.creditMultiplier,
     required this.endurance,
+    this.bossDamageMultiplier = 1,
   });
 
-  /// [darkMatter] is the permanent prestige bonus (see `prestige.dart`).
+  /// [darkMatter] is the permanent prestige bonus (see `prestige.dart`); [perks]
+  /// are Dark Matter shop levels (see `dark_matter_shop.dart`).
   factory ShipStats.fromLevels(
     Map<Upgrade, int> levels, {
     double darkMatter = 0,
+    Map<Perk, int> perks = const {},
   }) {
     int l(Upgrade u) => levels[u] ?? 0;
+    int p(Perk k) => perks[k] ?? 0;
     final dm = darkMatterBonus(darkMatter);
+    final frame = pow(1.2, p(Perk.frame));
     final shield = l(Upgrade.shields) == 0
         ? 0.0
-        : 12.0 * l(Upgrade.shields) * pow(1.1, l(Upgrade.shields)) * dm;
+        : 12.0 * l(Upgrade.shields) * pow(1.1, l(Upgrade.shields)) * dm * frame;
     return ShipStats(
-      damage: 5.0 * pow(1.13, l(Upgrade.cannons)) * dm,
+      damage:
+          5.0 * pow(1.13, l(Upgrade.cannons)) * dm * pow(1.2, p(Perk.cannons)),
       fireRate: 1.0 + 0.1 * l(Upgrade.targeting),
-      maxHull: 50.0 * pow(1.13, l(Upgrade.hull)) * dm,
+      maxHull: 50.0 * pow(1.13, l(Upgrade.hull)) * dm * frame,
       maxShield: shield,
       // A fifth of capacity per second.
       shieldRegen: shield * 0.2,
       warpDelay: max(0.3, 2.0 - 0.085 * l(Upgrade.engines)),
-      creditMultiplier: (1.0 + 0.15 * l(Upgrade.salvage)) * dm,
+      creditMultiplier:
+          (1.0 + 0.15 * l(Upgrade.salvage)) * dm * pow(1.2, p(Perk.contracts)),
       // 4h covers an evening; max level (12h) covers a night's sleep.
       endurance: Duration(minutes: 240 + 40 * l(Upgrade.drones)),
+      bossDamageMultiplier: 1 + 0.5 * p(Perk.bossBreaker),
     );
   }
 
@@ -77,6 +86,9 @@ class ShipStats {
   /// Seconds between one contact dying and the next one appearing.
   final double warpDelay;
   final double creditMultiplier;
+
+  /// Extra damage against bosses (Boss breaker perk); 1 without it.
+  final double bossDamageMultiplier;
 
   /// How long the ship can operate from full integrity before maintenance is due
   /// and it holds position until the player comes back to service it.

@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'dark_matter_shop.dart';
 import 'prestige.dart';
 import 'sectors.dart';
 import 'ships.dart';
@@ -46,10 +47,13 @@ class GameState {
     int? bestEver,
     this.totalKills = 0,
     this.darkMatter = 0,
+    this.darkMatterSpent = 0,
+    Map<Perk, int>? perks,
     this.prestiges = 0,
     double integrity = 1,
     this.tuneUpSeconds = 0,
   }) : levels = {for (final u in Upgrade.values) u: levels?[u] ?? 0},
+       perks = {for (final p in Perk.values) p: perks?[p] ?? 0},
        bestSector = bestSector ?? sector,
        bestEver = max(bestEver ?? 1, bestSector ?? sector),
        integrity = integrity.clamp(0.0, 1.0) {
@@ -59,7 +63,7 @@ class GameState {
 
   /// Fresh stats, full hull and shields, warping to the next contact.
   void _restartShip() {
-    _stats = ShipStats.fromLevels(levels, darkMatter: darkMatter.toDouble());
+    _stats = _computeStats();
     hull = _stats.maxHull;
     shield = _stats.maxShield;
     enemy = null;
@@ -87,8 +91,49 @@ class GameState {
   int totalKills;
 
   /// Permanent prestige currency; see `prestige.dart`.
+  /// Every Dark Matter point ever earned: drives the passive bonus, never goes down.
   int darkMatter;
+
+  /// How much of [darkMatter] has gone on [perks].
+  int darkMatterSpent;
+
+  /// Dark Matter shop levels; kept through jumps.
+  final Map<Perk, int> perks;
   int prestiges;
+
+  int get darkMatterAvailable => max(0, darkMatter - darkMatterSpent);
+
+  ShipStats _computeStats() => ShipStats.fromLevels(
+    levels,
+    darkMatter: darkMatter.toDouble(),
+    perks: perks,
+  );
+
+  bool isPerkMaxed(Perk p) => p.maxLevel != null && perks[p]! >= p.maxLevel!;
+
+  int perkCost(Perk p) => p.cost(perks[p]!);
+
+  bool canBuyPerk(Perk p) =>
+      !isPerkMaxed(p) && darkMatterAvailable >= perkCost(p);
+
+  /// Buys one level of [p] with Dark Matter. Stat perks apply at once; Warp start
+  /// and Drone memory take effect at the next jump.
+  bool buyPerk(Perk p) {
+    if (!canBuyPerk(p)) return false;
+    darkMatterSpent += perkCost(p);
+    perks[p] = perks[p]! + 1;
+    final old = _stats;
+    _stats = _computeStats();
+    if (phase != Phase.repairing && phase != Phase.disabled) {
+      hull += _stats.maxHull - old.maxHull;
+      shield += _stats.maxShield - old.maxShield;
+    }
+    bossBlocked = false;
+    return true;
+  }
+
+  /// The sector the next jump would start in.
+  int get jumpStartSector => warpStartSector(bestEver, perks[Perk.warpStart]!);
 
   /// Wear, 1 (fresh) to 0 (broken down). Drains linearly over
   /// [ShipStats.endurance] while the ship is operating, so the breakdown time is
@@ -198,21 +243,24 @@ class GameState {
   }
 
   /// Jumps to a new galaxy: pays [prestigeReward] Dark Matter and starts a new run
-  /// (sector 1, no credits, no upgrades). Returns the Dark Matter gained, 0 if the
-  /// run isn't deep enough (nothing changes then).
+  /// (no credits or upgrades, at [jumpStartSector]; Drone memory keeps Repair
+  /// drones). Shop perks are kept. Returns the Dark Matter gained, 0 if the run
+  /// isn't deep enough (nothing changes then).
   int prestige() {
     final gain = prestigeReward;
     if (gain <= 0) return 0;
     darkMatter += gain;
     prestiges++;
     credits = 0;
+    final keepDrones = perks[Perk.droneMemory]! > 0;
     for (final u in Upgrade.values) {
+      if (u == Upgrade.drones && keepDrones) continue;
       levels[u] = 0;
     }
-    sector = 1;
+    sector = jumpStartSector;
     kills = 0;
     bossBlocked = false;
-    bestSector = 1;
+    bestSector = sector;
     integrity = 1;
     lastDiscovery = null;
     _restartShip();
@@ -231,7 +279,8 @@ class GameState {
     final e = enemy!;
     playerCooldown -= dt;
     while (playerCooldown <= 0) {
-      e.hp -= _stats.damage * _boost;
+      e.hp -=
+          _stats.damage * _boost * (e.isBoss ? _stats.bossDamageMultiplier : 1);
       lastPlayerShot = clock;
       playerCooldown += 1 / _stats.fireRate;
       if (e.destroyed) {
@@ -310,7 +359,7 @@ class GameState {
     credits -= costOf(u);
     levels[u] = levels[u]! + 1;
     final old = _stats;
-    _stats = ShipStats.fromLevels(levels, darkMatter: darkMatter.toDouble());
+    _stats = _computeStats();
     // New plating and shield capacity arrive intact.
     if (phase != Phase.repairing && phase != Phase.disabled) {
       hull += _stats.maxHull - old.maxHull;
@@ -332,6 +381,8 @@ class GameState {
     'bestEver': bestEver,
     'darkMatter': darkMatter,
     'prestiges': prestiges,
+    'darkMatterSpent': darkMatterSpent,
+    'perks': {for (final e in perks.entries) e.key.name: e.value},
     'integrity': integrity,
     'tuneUp': tuneUpSeconds,
   };
@@ -347,6 +398,15 @@ class GameState {
         if (v is int && v >= 0) levels[u] = v;
       }
     }
+    final rawPerks = json['perks'];
+    final perks = <Perk, int>{};
+    if (rawPerks is Map) {
+      for (final p in Perk.values) {
+        final v = rawPerks[p.name];
+        if (v is int && v >= 0) perks[p] = min(v, p.maxLevel ?? v);
+      }
+    }
+    final darkMatter = max(0, (json['darkMatter'] as num?)?.toInt() ?? 0);
     final sector = max(1, (json['sector'] as num?)?.toInt() ?? 1);
     return GameState(
       credits: max(0, (json['credits'] as num?)?.toDouble() ?? 0),
@@ -357,7 +417,12 @@ class GameState {
       bestSector: max(sector, (json['bestSector'] as num?)?.toInt() ?? sector),
       totalKills: (json['totalKills'] as num?)?.toInt() ?? 0,
       bestEver: (json['bestEver'] as num?)?.toInt(),
-      darkMatter: max(0, (json['darkMatter'] as num?)?.toInt() ?? 0),
+      darkMatter: darkMatter,
+      darkMatterSpent: ((json['darkMatterSpent'] as num?)?.toInt() ?? 0).clamp(
+        0,
+        darkMatter,
+      ),
+      perks: perks,
       prestiges: max(0, (json['prestiges'] as num?)?.toInt() ?? 0),
       integrity: (json['integrity'] as num?)?.toDouble() ?? 1,
       tuneUpSeconds: max(

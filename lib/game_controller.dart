@@ -5,6 +5,7 @@ import 'dart:math';
 import 'package:flutter/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'game/dark_matter_shop.dart';
 import 'game/game_state.dart';
 import 'game/offline.dart';
 import 'game/upgrades.dart';
@@ -178,6 +179,15 @@ class GameController extends ChangeNotifier with WidgetsBindingObserver {
       notifyListeners();
     }
     return gain;
+  }
+
+  bool buyPerk(Perk p) {
+    final ok = state.buyPerk(p);
+    if (ok) {
+      save();
+      notifyListeners();
+    }
+    return ok;
   }
 
   void challengeBoss() {
