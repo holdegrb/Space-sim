@@ -4,6 +4,7 @@
 // The player checks in every 5 minutes for the first hour, then on a schedule.
 // Each check-in services the ship (earning a tune-up when due), buys the cheapest upgrades it can afford, and jumps
 // galaxies once a jump would at least double their Dark Matter (and pays >= 1).
+import 'package:space_sim/game/dark_matter_shop.dart';
 import 'package:space_sim/game/format.dart';
 import 'package:space_sim/game/game_state.dart';
 import 'package:space_sim/game/upgrades.dart';
@@ -43,12 +44,18 @@ void run(int Function(int t) nextGap) {
       );
       s.prestige();
     }
+    // Spend Dark Matter on the cheapest perk, repeatedly.
+    while (true) {
+      final perks = Perk.values.where((p) => !s.isPerkMaxed(p)).toList()
+        ..sort((a, b) => s.perkCost(a).compareTo(s.perkCost(b)));
+      if (perks.isEmpty || !s.buyPerk(perks.first)) break;
+    }
     buyAll(s);
     if (t >= nextReport) {
       print(
         '  ${formatDuration(Duration(seconds: t)).padRight(8)} '
         'sector ${s.sector.toString().padLeft(3)} best ${s.bestSector.toString().padLeft(3)} '
-        'DM ${s.darkMatter.toString().padLeft(4)} jumps ${s.prestiges} '
+        'DM ${s.darkMatter.toString().padLeft(4)} jumps ${s.prestiges} perks ${s.perks.values.fold(0, (a, b) => a + b)} '
         'endurance ${formatDuration(s.stats.endurance)} tune-ups $tuneUps'
         '${brokeDown ? '  (was broken down)' : ''}',
       );

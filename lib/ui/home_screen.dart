@@ -1,5 +1,8 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 
+import '../game/dark_matter_shop.dart';
 import '../game/format.dart';
 import '../game/game_state.dart';
 import '../game/offline.dart';
@@ -383,7 +386,8 @@ class _UpgradesButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final s = GameScope.of(context).state;
     final affordable = Upgrade.values.where(s.canBuy).length;
-    final jump = s.prestigeReward > 0;
+    // The spark: something to do with Dark Matter (a jump, or a perk to buy).
+    final jump = s.prestigeReward > 0 || Perk.values.any(s.canBuyPerk);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
       child: SizedBox(
@@ -478,6 +482,7 @@ class _UpgradeList extends StatelessWidget {
           for (final u in Upgrade.values)
             _UpgradeTile(upgrade: u, controller: c),
           _PrestigeTile(controller: c),
+          _DarkMatterShop(controller: c),
         ],
       ),
     );
@@ -830,6 +835,7 @@ class _PrestigeTile extends StatelessWidget {
 
   Future<void> _confirm(BuildContext context, int reward) async {
     final next = controller.state.shipClass.next;
+    final start = controller.state.jumpStartSector;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -837,7 +843,8 @@ class _PrestigeTile extends StatelessWidget {
         content: Text(
           'You gain $reward Dark Matter and lose this run\'s sectors, credits and '
           'upgrades.'
-          '${next == null ? '' : ' Your ship becomes the ${next.fullName}.'}',
+          '${next == null ? '' : ' Your ship becomes the ${next.fullName}.'}'
+          '${start > 1 ? ' Warp start puts you in sector $start.' : ''}',
         ),
         actions: [
           TextButton(
@@ -938,4 +945,122 @@ class _ArtPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_ArtPainter old) => old.art != art;
+}
+
+/// Spend Dark Matter on perks that last through every jump. Spending never lowers
+/// the passive bonus, which counts all Dark Matter ever earned.
+class _DarkMatterShop extends StatelessWidget {
+  const _DarkMatterShop({required this.controller});
+
+  final GameController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = controller.state;
+    final small = Theme.of(context).textTheme.bodySmall;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'DARK MATTER SHOP',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                      color: SpaceColors.muted,
+                      letterSpacing: 2,
+                    ),
+                  ),
+                ),
+                Text(
+                  '${s.darkMatterAvailable} to spend',
+                  style: small?.copyWith(color: SpaceColors.prestige),
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+            child: Text(
+              s.darkMatter == 0
+                  ? 'Galaxy jumps earn Dark Matter. Spend it here on perks that '
+                        'stay with you forever.'
+                  : 'Perks stay with you through every jump. Spending never '
+                        'lowers your Dark Matter bonus.',
+              style: small?.copyWith(color: SpaceColors.muted),
+            ),
+          ),
+          for (final p in Perk.values)
+            _PerkTile(perk: p, controller: controller),
+        ],
+      ),
+    );
+  }
+}
+
+class _PerkTile extends StatelessWidget {
+  const _PerkTile({required this.perk, required this.controller});
+
+  final Perk perk;
+  final GameController controller;
+
+  @override
+  Widget build(BuildContext context) {
+    final s = controller.state;
+    final level = s.perks[perk]!;
+    final maxed = s.isPerkMaxed(perk);
+    final text = Theme.of(context).textTheme;
+    final title = perk.maxLevel == 1
+        ? perk.label
+        : '${perk.label}  ·  Lv $level';
+    return ListTile(
+      title: Text(title),
+      subtitle: Text(
+        '${perk.description}. ${perkEffectText(perk, s)}',
+        style: text.bodySmall?.copyWith(color: SpaceColors.muted),
+      ),
+      trailing: maxed
+          ? Text(
+              perk.maxLevel == 1 ? 'OWNED' : 'MAX',
+              style: const TextStyle(color: SpaceColors.prestige),
+            )
+          : FilledButton(
+              onPressed: s.canBuyPerk(perk)
+                  ? () => controller.buyPerk(perk)
+                  : null,
+              style: FilledButton.styleFrom(
+                backgroundColor: SpaceColors.prestige,
+                minimumSize: const Size(88, 40),
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const Icon(Icons.auto_awesome, size: 16),
+                  const SizedBox(width: 4),
+                  Text('${s.perkCost(perk)}'),
+                ],
+              ),
+            ),
+    );
+  }
+}
+
+/// What a perk does for the player right now, for its tile.
+String perkEffectText(Perk p, GameState s) {
+  final l = s.perks[p]!;
+  String times(num v) => '×${v.toStringAsFixed(2)}';
+  return switch (p) {
+    Perk.cannons => 'Now ${times(pow(1.2, l))} damage.',
+    Perk.frame => 'Now ${times(pow(1.2, l))} hull and shields.',
+    Perk.contracts => 'Now ${times(pow(1.2, l))} credits.',
+    Perk.bossBreaker => 'Now ${times(1 + 0.5 * l)} against bosses.',
+    Perk.warpStart =>
+      l == 0 ? 'Not owned.' : 'Next run starts at sector ${s.jumpStartSector}.',
+    Perk.droneMemory => l == 0 ? 'Not owned.' : 'Active.',
+  };
 }

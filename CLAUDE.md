@@ -29,6 +29,7 @@ Code is `dart format` clean. CI and signing: see README.md (same scheme as the B
 | `lib/game/upgrades.dart` | `Upgrade` (costs) and `ShipStats.fromLevels` (effects) |
 | `lib/game/sectors.dart` | Enemy scaling per sector, sector/region names, discoveries |
 | `lib/game/prestige.dart` | Galaxy jump: Dark Matter payout and bonus |
+| `lib/game/dark_matter_shop.dart` | `Perk`s bought with Dark Matter (costs, Warp start sector) |
 | `lib/game/ships.dart` | `ShipClass`: the player's hull, one class per galaxy jump (cosmetic) |
 | `lib/ui/ship_art.dart` | GENERATED ship drawings; `ship_art_types.dart` draws them, `ships.dart` maps class/enemy name → art |
 | `lib/services/breakdown_alerts.dart` | "Maintenance due" notification (interface + plugin impl) and quiet hours |
@@ -93,11 +94,22 @@ and fails loudly on anything else.
     Players can turn alerts and quiet hours off from the ⋮ menu (`alerts_enabled`,
     `alerts_quiet_hours` in prefs, both default on).
 - **Prestige (galaxy jump):** from sector 25, `prestige()` pays `darkMatterFor(bestSector)`
-  (quadratic) and resets sector, credits, all upgrade levels (drones too) and integrity. Each Dark
+  (quadratic) and resets credits, upgrade levels (drones too, unless Drone memory) and integrity;
+  the new run starts at sector 1 or Warp start's `jumpStartSector`. Shop perks stay. Each Dark
   Matter adds +10% (additive) to damage, hull, shields and credits via `ShipStats.fromLevels`.
   The payout was exponential once and ran away (sector 270, 700M DM by day 5); keep it
   polynomial and check `tool/balance_sim.dart` (it simulates players checking in every 2/4/8h
-  and at 8am/1pm/9pm, who service, buy and jump) after touching it. `bestSector` is per run, `bestEver` all-time.
+  and at 8am/1pm/9pm, who service, buy, jump and spend Dark Matter) after touching it.
+  `bestSector` is per run, `bestEver` all-time.
+- **Dark Matter shop:** `darkMatter` counts every point ever earned and alone drives the passive
+  +10%/point bonus; perks spend from `darkMatterAvailable` (`darkMatter - darkMatterSpent`), so
+  buying never weakens the bonus (research: Cookie Clicker's split; Clicker Heroes' "unspent
+  souls give the bonus" punishes spending). Perks (`perks`, saved by name) survive jumps:
+  cannons / frame / contracts ×1.2 per level (cost 3·1.6^L), Boss breaker +50% vs bosses
+  (8·2^L), Warp start (next run starts at `bestEver·10%·L`, max 5), Drone memory (Repair drones
+  survive a jump, 25, once). Multiplicative perks are the runaway risk: the sim moved the 5-day
+  plateau ~20–25% (2h checker 157→193, casual 86→111) with no runaway; re-check after changes.
+  Never add a perk that discounts upgrade cost growth (compounds into a runaway).
 - Saves are versioned (now `'v': 2`; v1 loads as no Dark Matter, full integrity) and `fromJson` tolerates missing/garbage fields. Only progress
   is saved; the fight in progress restarts with a warp. Bump `v` and migrate if the meaning of a
   field changes.
@@ -112,5 +124,6 @@ and fails loudly on anything else.
 
 ## Ideas not built yet
 
-A Dark Matter shop (spend DM on permanent perks, e.g. drones that survive a jump), bulk buy (×10 / max), stats per
+Bulk buy (×10 / max), a fairer prestige payout (lifetime-based, paid as the difference, with a
+preview), stats per
 ship class (they're cosmetic now), crew, a star map of cleared sectors, sound, a launcher icon.

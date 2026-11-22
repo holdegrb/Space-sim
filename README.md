@@ -19,6 +19,9 @@ fighting while you're away, but not forever: see wear below.
   Swarm, the Null Choir and the Void Brood.
 - **Galaxy jump (prestige):** from sector 25 you can start over in a new galaxy for Dark Matter.
   Each point is a permanent +10% to damage, hull, shields and credits. Deeper runs pay more.
+- **Dark Matter shop:** spend Dark Matter on perks that last forever: stronger cannons, frame
+  and salvage contracts, extra damage against bosses, starting later runs deeper (Warp start)
+  and keeping Repair drones through a jump. Spending never lowers the Dark Matter bonus.
 - **Losing** is never a game over. Lose to a boss and the ship repairs and farms the sector until
   you upgrade or tap **Challenge boss**. Lose to regular contacts and it falls back a sector.
 
